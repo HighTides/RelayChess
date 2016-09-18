@@ -80,6 +80,9 @@ module.exports = {
 
                     //send seek list to new connection
                     utils.emitSeeksUpdate(socket);
+
+                    //send active game list to new connection
+                    utils.emitActiveGames(socket);
                 }
                 else
                 {
