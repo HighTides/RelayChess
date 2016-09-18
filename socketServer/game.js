@@ -40,6 +40,8 @@ module.exports = function(white, black, time, increment){
 
     this.chess = new chess.Chess();
 
+    this.spectators = [];
+
     this.getAdjustedPlayerTime = function(){
         if(!this.timing || this.lastMoveTime == null){
             return { white: this.white.time, black: this.black.time };

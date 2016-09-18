@@ -96,7 +96,7 @@
                 </div>
 
                 <div style="width:500px; flex:0 0 auto;">
-                    <div class="panel" style="min-height: 400px;">
+                    <div class="panel" style="min-height: 200px;">
                         <div class="seek-base" ng-repeat="seek in relayChess.seeks" ng-class-odd="'odd'" ng-click="answerSeek(seek.name)" ng-class="{'self':(seek.name == userToken.name)}">
                             <div style="display:flex; margin-left: 10px; margin-right: 10px;">
                                 <div style="flex:0 0 auto; width: 30%; text-align: left;">
@@ -106,6 +106,19 @@
 
                                 <div style="flex:1 0 auto; width: 30%;">{{seek.rating}}</div>
                                 <div style="flex:1 0 auto; width: 40%;">{{seek.time}}+{{seek.increment}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel" style="min-height: 200px;">
+                        <div class="seek-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-class="{'self':(game.name == userToken.name)}">
+                            <div style="display:flex; margin-left: 10px; margin-right: 10px;">
+                                <div style="flex:0 0 auto; width: 30%; text-align: left;">
+                                    <div style="display:inline-block; color: #d5ac34;">{{game.id}}</div>
+                                    <div style="display:inline-block;">{{game.white}}</div>
+                                </div>
+
+                                <div style="flex:1 0 auto; width: 30%;">{{game.black}}</div>
+                                <div style="flex:1 0 auto; width: 40%;">{{game.time}}+{{game.increment}}</div>
                             </div>
                         </div>
                     </div>
@@ -207,7 +220,6 @@
 
         <!-- Main View -->
         <div ng-view></div>
-        <div><iframe src="http://relaychess.mooo.com:8080/relay/sound/"/></div>
     </body>
 </html>
 

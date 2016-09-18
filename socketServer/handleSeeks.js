@@ -121,6 +121,8 @@ module.exports = {
 
                 //push updated seeks to all players
                 utils.emitSeeksUpdate(io.sockets);
+                //push active games to all users
+                utils.emitActiveGames(io.sockets);
             }
             
         });

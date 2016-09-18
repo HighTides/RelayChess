@@ -166,8 +166,29 @@ module.exports = {
 
             var color = game.getColorForUsername(user.name);
 
-            if(!color){
+            if(!color || !(data.loggedInUsers[game.white.name] && data.loggedInUsers[game.black.name])){
                 //user not playing in this game
+                //add user as a spectator and reference their socket
+                //currently it is not possible to un-spectate
+                game.spectators[user.name] = user.socket;
+
+                socket.emit("setupGameSpectate", {
+                    orientation: color,
+                    fen: game.chess.fen(),
+                    timing: game.timing,
+                    white: {
+                        title: whitePlayer.title,
+                        displayName: whitePlayer.displayName,
+                        rating: whitePlayer.rating,
+                        time: updatedTime.white
+                    },
+                    black: {
+                        title: blackPlayer.title,
+                        displayName: blackPlayer.displayName,
+                        rating: blackPlayer.rating,
+                        time: updatedTime.black
+                    }
+                });
                 return;
             }
 
@@ -279,6 +300,7 @@ module.exports = {
             var opponent = game.getOpponent(user.name);
 
             opponent.socket.emit("move", request);
+            utils.emitSpectatorMove(game, request);
 
             //check for game over
             if(game.chess.game_over()){

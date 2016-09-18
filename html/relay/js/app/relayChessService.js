@@ -8,7 +8,8 @@
             socket: null,
             playerInfo: null,
             users: [],
-            seeks: []
+            seeks: [],
+            activeGames: []
         };
 
         var socket = io.connect(socketServer);
@@ -45,6 +46,15 @@
             });
         });
 
+        socket.on("activeGameUpdate", function (response) {
+            //store active games
+            console.log("socket -> activeGameUpdate");
+
+            $rootScope.$apply(function () {
+                data.activeGames = response.activeGames;
+            });
+        });
+
         //chessgame endpoints
         socket.on("joinGame", function (response) {
             $rootScope.$apply(function () {
@@ -56,12 +66,20 @@
             $rootScope.$emit("setupGame", response);
         });
 
+        socket.on("setupGameSpectate", function (response) {
+            $rootScope.$emit("setupGameSpectate", response);
+        });
+
         socket.on("startGame", function (response) {
             $rootScope.$emit("startGame", response);
         });
 
         socket.on("move", function (response) {
             $rootScope.$emit("move", response);
+        });
+
+        socket.on("moveSpectate", function (response) {
+            $rootScope.$emit("moveSpectate", response);
         });
 
         socket.on("gameOver", function (response) {

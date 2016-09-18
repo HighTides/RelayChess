@@ -87,5 +87,38 @@ module.exports = {
         }
 
         socket.emit("seekUpdate", {seeks: publicSeeks});
+    },
+
+    emitActiveGames: function(socket)
+    {
+        var publicGames = [];
+
+        for(game in data.activeGames){
+           var game_ = data.activeGames[game];
+
+           publicGames.push({
+               id : game_.id,
+               white : game_.white.name,
+               black : game_.black.name,
+               time : game_.time,
+               increment : game_.increment
+           });
+        }
+
+        socket.emit("activeGameUpdate", {activeGames: publicGames});
+    },
+
+    emitSpectatorMove: function(game, move)
+    {
+        var message = {
+            id : game.id,
+            move : move
+        };
+
+        for (user in game.spectators) {
+            if (game.spectators[user]) {
+                game.spectators[user].socket.emit("moveSpectate", message);
+            }
+        }
     }
 };

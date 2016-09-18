@@ -150,6 +150,7 @@
             cleanStartGame();
             cleanTimeUpdate();
             cleanMove();
+            cleanSpectate();
             cleanGameOver();
         }
 
@@ -179,9 +180,7 @@
         }
 
         //endpoints
-        var cleanSetupGame = $rootScope.$on("setupGame", function (event, response) {
-            //update game information
-            console.log("socket -> setupGame");
+        var executeSetupGame = function (event, response) {
 
             if(orientation == "white"){
                 $scope.us = response.white;
@@ -214,12 +213,19 @@
                 });
             }
 
-            updateActivePlayer();
-
             if(chess.in_check())
             {
                 ground.setCheck();
             }
+        }
+
+        var cleanSetupGame = $rootScope.$on("setupGame", function (event, response) {
+            //update game information
+            console.log("socket -> setupGame");
+
+            executeSetupGame(event, response);
+
+            updateActivePlayer();
 
             if(response.timing)
             {
@@ -229,6 +235,16 @@
 
                 switchToInGameUI();
             }
+
+            //update all the values
+            $rootScope.$apply();
+        });
+
+        var cleanSetupGameSpectate = $rootScope.$on("setupGameSpectate", function (event, response) {
+            //update game information
+            console.log("socket -> setupGameSpectate");
+
+            executeSetupGame(event, response);
 
             //update all the values
             $rootScope.$apply();
@@ -261,10 +277,7 @@
             startUpdateTimer();
         });
 
-        var cleanMove = $rootScope.$on("move", function (event, response) {
-            console.log("socket -> move");
-
-            var move = response.move;
+        var executeMove = function (move) {
             var orig = move.from;
             var dest = move.to;
             var promotion = move.promotion;
@@ -316,8 +329,23 @@
             {
                 ground.setCheck();
             }
+        }
+
+        var cleanMove = $rootScope.$on("move", function (event, response) {
+            console.log("socket -> move");
+
+            executeMove(response.move);
 
             updateActivePlayer();
+        });
+
+        var cleanSpectate = $rootScope.$on("moveSpectate", function (event, response) {
+            console.log("socket -> moveSpectate");
+
+            //TODO: Check if response is for the spectating game
+            //(if spectating or playing multiple games)
+            var id = response.id;
+            executeMove(response.move);
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {
