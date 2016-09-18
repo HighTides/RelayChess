@@ -85,13 +85,21 @@
         <script type="text/ng-template" id="lobby.html">
             <div style="display:flex; margin-top:30px; justify-content: center;">
                 <div style="width:250px; margin-right:10px; flex:0 0 auto;">
-                    <div class="panel" style="height: 400px; overflow: auto; overflow-x: hidden;">
+                    <div class="panel" style="height: 200px; overflow: auto; overflow-x: hidden;">
                         <div style="margin-top: 10px;">{{relayChess.users.length}} Player{{relayChess.users.length!=1?"s":""}} online</div>
                         <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating' : true)">
                             <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
                             <div style="flex:0 0 auto;">{{user.displayName}}</div>
                             <div style="flex:1 0 auto; text-align: right;">{{user.rating}}</div>
                         </div>
+                    </div>
+                    <div class="panel" style="height: 200px; overflow: auto; overflow-x: hidden;">
+                        <ol>
+                            <li>Pieces (including the King, but not pawns), in addition to their natural(*) powers, inherit movement from the natural powers of any piece which currently protects them.</li>
+                            <li>Castling is only performed by moving the King (and not pieces protected by the King) on top of the castling Rook (and not pieces protected by a Rook).</li>
+                            <li>All other rules of chess are observed</li>
+                        </ol>
+                        (*) natural powers are movements naturally accorded to a piece and not those inherited from protecting pieces.
                     </div>
                 </div>
 
