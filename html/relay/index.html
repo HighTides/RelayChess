@@ -1,0 +1,213 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <title>Relay Chess</title>
+
+        <script src="https://use.fontawesome.com/34e85c6daf.js"></script>
+
+        <link rel="stylesheet" href="styles/example.css">
+        <link rel="stylesheet" href="assets/base.css">
+        <link rel="stylesheet" href="assets/theme.css">
+        <link rel="stylesheet" href="assets/desktop.css">
+
+        <link rel="stylesheet" href="styles/base.css">
+        <link rel="stylesheet" href="styles/forms.css">
+        <link rel="stylesheet" href="styles/quotes.css">
+
+        <link rel="stylesheet" href="styles/game.css">
+        <link rel="stylesheet" href="styles/promote.css">
+
+        <!-- Angular Modal Service Style-->
+        <link rel="stylesheet" href="styles/modal.css">
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-route.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
+        <script src="js/angularModalService.js"></script>
+
+        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+        <script src="js/chessground.min.js"></script>
+        <script src="js/chess.js"></script>
+
+        <!-- RelayChessApp -->
+        <script src="js/app/config.js"></script>
+        <script src="js/app/relayChessService.js"></script>
+        <script src="js/app/loginController.js"></script>
+        <script src="js/app/lobbyController.js"></script>
+        <script src="js/app/playController.js"></script>
+        <script src="js/app/seekModalController.js"></script>
+        <script src="js/app/minuteFilter.js"></script>
+    </head>
+
+    <body ng-app="relayApp">
+        <div class="torch left"></div>
+        <div class="torch right"></div>
+
+        <div id="logo" class="center"></div>
+
+        <!-- Login -->
+        <script type="text/ng-template" id="login.html">
+        <div class="flex-center-column center" style="position: relative;">
+            <div class="flex-block animated fadeIn" style="width: 390px; margin-bottom: 100px;">
+                <p class="login-header">Login</p>
+                <p class="login-header sub-error">{{message}}</p>
+                <form novalidate>
+                    <input class="inp-border" type="text" ng-model="user.name" placeholder="Name"/><br />
+                    <input class="inp-border" type="password" ng-model="user.password" placeholder="Password"/><br />
+                    <input type="submit" class="btn-border btn-big" style="margin-top:20px; float: left;" ng-click="tryLogin(user)" ng-disabled="requestActive" ng-class="{disabled: requestActive}" value="Login" />
+                    <input type="submit" class="btn-forgot" style="margin-top:20px; float: right;" ng-click="showRegister()" value="Don't have an account yet?" />
+                </form>
+            </div>
+        </div>
+        </script>
+
+        <!-- Register -->
+        <script type="text/ng-template" id="register.html">
+            <div class="flex-center-column center" style="position: relative;">
+                <div class="flex-block animated fadeIn" style="width: 390px; margin-bottom: 100px;">
+                    <p class="login-header">Register</p>
+                    <p class="login-header sub-error">{{message}}</p>
+                    <form novalidate>
+                        <input class="inp-border" type="text" ng-model="user.name" placeholder="Name"/><br />
+                        <input class="inp-border" type="password" ng-model="user.password" placeholder="Password"/><br />
+                        <input type="submit" class="btn-border btn-big yellow" style="margin-top:20px; float: left;" ng-click="trySignup(user)" ng-disabled="requestActive" ng-class="{disabled: requestActive}" value="Register" />
+                        <input type="submit" class="btn-forgot" style="margin-top:20px; float: right;" ng-click="showLogin()" value="Already have an account?" />
+                    </form>
+                </div>
+            </div>
+        </script>
+
+        <!-- Lobby -->
+        <script type="text/ng-template" id="lobby.html">
+            <div style="display:flex; margin-top:30px; justify-content: center;">
+                <div style="width:250px; margin-right:10px; flex:0 0 auto;">
+                    <div class="panel" style="height: 400px; overflow: auto; overflow-x: hidden;">
+                        <div style="margin-top: 10px;">{{relayChess.users.length}} Player{{relayChess.users.length!=1?"s":""}} online</div>
+                        <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating' : true)">
+                            <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
+                            <div style="flex:0 0 auto;">{{user.displayName}}</div>
+                            <div style="flex:1 0 auto; text-align: right;">{{user.rating}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="width:500px; flex:0 0 auto;">
+                    <div class="panel" style="min-height: 400px;">
+                        <div class="seek-base" ng-repeat="seek in relayChess.seeks" ng-class-odd="'odd'" ng-click="answerSeek(seek.name)" ng-class="{'self':(seek.name == userToken.name)}">
+                            <div style="display:flex; margin-left: 10px; margin-right: 10px;">
+                                <div style="flex:0 0 auto; width: 30%; text-align: left;">
+                                    <div style="display:inline-block; color: #d5ac34;">{{seek.title}}</div>
+                                    <div style="display:inline-block;">{{seek.displayName}}</div>
+                                </div>
+
+                                <div style="flex:1 0 auto; width: 30%;">{{seek.rating}}</div>
+                                <div style="flex:1 0 auto; width: 40%;">{{seek.time}}+{{seek.increment}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="width:200px; margin-left:10px; flex:0 0 auto; display:flex; flex-direction: column; justify-content: center;">
+                    <div class="btn-border btn-big yellow" style="margin-bottom: 10px;" ng-click="openSeekDialog();">New Game</div>
+                    <div class="btn-border btn-big" style="margin-bottom: 10px; display: none;" ng-click="openFriendSeekDialog();">Play with a friend</div>
+                    <div class="btn-forgot" style="margin-bottom: 10px; display: none;" ng-click="logout()">Logout</div>
+                </div>
+            </div>
+
+            <blockquote class="pull-quote" style="margin-top: 40px;">
+                <p>TODO: <a href="https://en.wikipedia.org/wiki/Multi-factor_authentication">2FA</a> so I don't have your password</p>
+                <footer>Toadofsky</footer>
+            </blockquote>
+        </script>
+
+        <script type="text/ng-template" id="seekModal.html">
+            <div id="custom-modal">
+                <div id="overlay">
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(1,0)">1+0</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(3,0)">3+0</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(5,0)">5+0</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(10,0)">10+0</div>
+
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(1,2)">1+2</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(3,2)">3+2</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(5,2)">5+2</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(10,2)">10+2</div>
+                </div>
+                <div id="fade" ng-click="close()"></div>
+            </div>
+        </script>
+
+        <script type="text/ng-template" id="play.html">
+            <div class="game">
+                <div class="panel" style="height:600px; width:300px; margin-right: 20px; margin-top:70px; visibility: hidden;"></div>
+
+                <div style="width: 600px;">
+                    <div class="promotePanel center" id="promotePanel">
+                        <div style="flex: 1 1 auto;" class="promote queen" id="promoteQueen"></div>
+                        <div style="flex: 1 1 auto;" class="promote rook" id="promoteRook"></div>
+                        <div style="flex: 1 1 auto;" class="promote knight" id="promoteKnight"></div>
+                        <div style="flex: 1 1 auto;" class="promote bishop" id="promoteBishop"></div>
+                    </div>
+
+                    <div class="brown cburnett" id="relayBoard" style="width: 600px; height:600px;"></div>
+                </div>
+
+                <div style="margin-left:20px; margin-top:70px; width: 400px; box-shadow: 0 0 50px 5px rgba(0,0,0,0.3);">
+
+                    <div style="display:flex;">
+                        <div style="width:90px; height:40px; line-height: 40px; text-align: center; flex:0 0 auto; background: #000;">
+                            <div style="font-size: 25px; font-family: monospace;" ng-class="{'clockActive': them.active}">{{them.time | asMinutes}}</div>
+                        </div>
+
+                        <div style="height:40px; line-height: 40px; flex:1 0 auto; background: #2c2c2c;">
+                            <div style="display:flex; margin-left:10px; margin-right:10px;">
+                                <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{them.title}}</div>
+                                <div style="flex:0 0 auto; margin-right: 10px;">{{them.displayName}} ({{them.rating}}) {{them.ratingChange}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="min-height:50px; flex:1 0 auto; background: #2c2c2c;">
+                        <div id="gameOver" style="position:relative; padding-top: 10px; padding-bottom:10px; display: none;">
+                            <div style="font-size: 16px; font-weight: bold;">{{gameResult}}</div>
+                            <div style="font-style: italic">{{gameResultReason}}</div>
+                            <!--<div class="btn-border btn-big">Rematch</div>-->
+                            <div class="btn-border btn-big" ng-click="backToLobby()">Back</div>
+                        </div>
+
+                        <div id="gameRunning" style="position:relative; padding-top: 10px; padding-bottom:10px; display: none;">
+                            <div class="btn-border btn-big" ng-click="resignGame()">Resign</div>
+                            <!--<div class="btn-border btn-big">Offer Draw</div>-->
+                        </div>
+
+                        <div id="preGame" style="position:relative; padding-top: 10px; padding-bottom:10px;">
+                            <div class="btn-border btn-big" ng-click="abortGame()">Abort Game</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;">
+                        <div style="width:90px; height:40px; line-height: 40px; text-align: center; flex:0 0 auto; background: #000;">
+                            <div style="font-size: 25px; font-family: monospace;" ng-class="{'clockActive': us.active}">{{us.time | asMinutes}}</div>
+                        </div>
+
+                        <div style="height:40px; line-height: 40px; flex:1 0 auto; background: #2c2c2c;">
+                            <div style="display:flex; margin-left:10px; margin-right:10px;">
+                                <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{us.title}}</div>
+                                <div style="flex:0 0 auto; margin-right: 10px;">{{us.displayName}} ({{us.rating}}) {{us.ratingChange}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </script>
+
+        <!-- Main View -->
+        <div ng-view></div>
+        <div><iframe src="http://relaychess.mooo.com:8080/relay/sound/"/></div>
+    </body>
+</html>
+

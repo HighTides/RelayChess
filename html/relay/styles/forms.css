@@ -1,0 +1,183 @@
+
+/*login*/
+.login-header {
+    font-size:30px;
+
+    margin-bottom: 15px;
+
+    color: white;
+}
+
+.login-header.sub {
+    font-size:16px;
+
+    margin-top: -12px;
+    margin-bottom: 15px;
+
+    color: rgba(255, 255, 255, 0.5);
+}
+
+
+.login-header.sub-error {
+    font-size:16px;
+
+    margin-top: -12px;
+    margin-bottom: 15px;
+
+    color: rgba(255, 104, 104, 1);
+}
+
+.inp-border {
+    height:45px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width:100%;
+
+    font-size:16px;
+    color: white;
+
+    background: none;
+
+    border:none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.41);
+}
+
+.inp-border:focus {
+    outline: none;
+
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.inp-border.ng-not-empty.error {
+    border-bottom: 1px solid rgba(255, 0, 22, 0.7);
+}
+
+/*buttons*/
+.btn-border {
+    background: linear-gradient(to bottom,rgba(40,40,40,1),rgba(34,34,34,1) 100%);
+    text-shadow: 0 1px 0 #000;
+
+    border-color: #323232;
+    color: #8f8f8f;
+    font-weight: bold;
+
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
+
+    cursor: pointer;
+
+    padding: 6px 11px;
+    white-space: nowrap;
+    text-decoration: none!important;
+}
+
+.btn-border:hover {
+    background: linear-gradient(to bottom, rgb(45, 45, 45), rgb(38, 38, 38) 100%);
+    text-decoration: none;
+    color:white;
+}
+
+.btn-border.btn-big {
+    padding: 11px 30px;
+}
+
+.btn-border.yellow {
+    color: #5d4317;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.56);
+
+    background: linear-gradient(to bottom, rgb(255, 211, 101), rgb(214, 146, 33) 100%);
+    border-color: rgba(183, 150, 40, 0.5);
+}
+
+.btn-border.yellow:hover {
+    color: #ffffff;
+    text-shadow: 0 1px 0 rgba(41, 41, 41, 0.56);
+
+    background: linear-gradient(to bottom, rgb(167, 138, 66), rgb(165, 113, 25) 100%);
+
+    border-color: #b79628;
+}
+
+.btn-border:active {
+    position:relative;
+    top:1px;
+}
+
+.btn-border.disabled:active {
+    position:relative;
+    top:0px;
+}
+
+/*green*/
+.btn-border.green {
+    border:1px solid #00e87e;
+    color:#00e87e;
+}
+
+.btn-border.green.disabled {
+    border:1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-border.green:hover {
+    background: rgba(0, 232, 126, 0.15);
+}
+
+.btn-border.green.disabled:hover {
+    background: none;
+}
+
+/*forgot button*/
+.btn-forgot {
+    cursor: pointer;
+    line-height:39px;
+
+    background: none;
+    border:none;
+
+    font-size:14px;
+
+    color: rgba(255, 255, 255, 0.4);
+    transition: 0.5s;
+}
+
+.btn-forgot:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-forgot:active {
+    color: rgba(255, 255, 255, 1);
+}
+
+.btn-forgot:focus {
+    outline:none;
+}
+
+/* seeks */
+.seek-base {
+    height: 50px;
+    line-height:50px;
+
+    background-color: rgba(255, 255, 255, 0.1);
+
+    cursor:pointer;
+}
+
+.seek-base.odd {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.seek-base.self {
+    background-color: rgba(206, 171, 43, 0.2);
+}
+
+.seek-base:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.seek-time-button {
+    margin-top:3px;
+    margin-bottom:3px;
+}

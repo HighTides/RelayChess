@@ -1,0 +1,113 @@
+
+.game {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5); /*dim the background*/
+}
+
+.modal {
+    /* some styles to position the modal at the center of the page */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 150px;
+    margin-left: -200px;
+    margin-top: -100px;
+    background-color: #2b2b2b;
+    text-align: center;
+
+    font-size: 16px;
+    color: #929292;
+
+    /* needed styles for the overlay */
+    z-index: 10; /* keep on top of other elements on the page */
+    outline: 9999px solid rgba(0,0,0,0.5);
+}
+
+.modal-input {
+    margin-top: 10px;
+    width: 80%;
+    text-align: center;
+    font-size: 12px;
+    padding: 1em 0;
+
+    border-color: #3d3d3d;
+    background: #1a1a1a;
+    color: #8f8f8f;
+}
+
+.sidepanel-history {
+    width:300px;
+
+    margin-left: 40px;
+    margin-top: 70px;
+
+    flex:0 0 auto;
+}
+
+.history {
+    height:554px;
+    background: rgba(0, 0, 0, 0.2);
+
+    border: 1px solid #ccc;
+    border-color: #3d3d3d;
+
+    color:#bdbdbd;
+}
+
+.sidepanel-chat {
+    width:300px;
+    height:600px;
+    flex:0 0 auto;
+    background: rgba(0, 0, 0, 0.2);
+    margin-right: 40px;
+    margin-top: 70px;
+
+    border-radius: 10px;
+}
+
+.game_control {
+    height:36px;
+    color:#fff;
+
+    margin-top:10px;
+    font-size:25px;
+
+    display:flex;
+    justify-content: center;
+}
+
+.control_icon {
+    flex: 0 0 auto;
+    width:70px;
+
+    color:#fff;
+    opacity: 0.6;
+
+    cursor:pointer;
+
+    transition: 300ms;
+}
+
+.control_icon:hover {
+    opacity:1.0;
+}
+
+.clockInactive{
+    color: white;
+}
+
+.clockActive{
+    color: Red;
+}

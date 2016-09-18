@@ -1,0 +1,35 @@
+.promotePanel {
+    width: 400px;
+    height: 70px;
+    display:flex;
+    visibility: hidden;
+}
+
+.promote {
+    background-position: 50% 50%;
+    background-repeat:no-repeat;
+    cursor: pointer;
+    opacity: 0.5;
+
+    transition: 300ms;
+}
+
+.promote:hover {
+    opacity: 1;
+}
+
+.promote.queen {
+    background-image: url('../assets/images/pieces/cburnett/wQ.svg');
+}
+
+.promote.rook {
+    background-image: url('../assets/images/pieces/cburnett/wR.svg');
+}
+
+.promote.bishop {
+    background-image: url('../assets/images/pieces/cburnett/wB.svg');
+}
+
+.promote.knight {
+    background-image: url('../assets/images/pieces/cburnett/wN.svg');
+}
