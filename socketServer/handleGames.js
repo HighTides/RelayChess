@@ -170,7 +170,7 @@ module.exports = {
                 //user not playing in this game
                 //add user as a spectator and reference their socket
                 //currently it is not possible to un-spectate
-                game.spectators[user.name] = user.socket;
+                game.spectators[user.name] = socket;
 
                 socket.emit("setupGameSpectate", {
                     orientation: color,

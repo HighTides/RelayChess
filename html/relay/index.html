@@ -118,7 +118,7 @@
                         </div>
                     </div>
                     <div class="panel" style="min-height: 200px;">
-                        <div class="seek-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-class="{'self':(game.name == userToken.name)}">
+                        <div class="seek-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-click="joinedGame(game.id)" ng-class="{'self':(game.white == userToken.name || game.black == userToken.name)}">
                             <div style="display:flex; margin-left: 10px; margin-right: 10px;">
                                 <div style="flex:0 0 auto; width: 30%; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{game.id}}</div>
