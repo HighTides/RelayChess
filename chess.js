@@ -498,10 +498,16 @@ var Chess = function(fen) {
     }
 
     function generate_hash() {
+        /* for threefold repetition purposes positions are identical unless at
+         * the start of the sequence a pawn could have been captured en passant
+         */
         var fen = generate_fen();
-        // TODO: include en passant square if there is an en passant move
-        if (half_moves && false) {
-            return fen.split(' ').slice(0, 4).join(' ');
+        if (ep_square != EMPTY) {
+            for (var move in generate_moves()) {
+                if (move.flags & BITS.EP_CAPTURE) {
+                    return fen.split(' ').slice(0, 4).join(' ');
+                }
+            }
         }
         return fen.split(' ').slice(0, 3).join(' ');
     }
