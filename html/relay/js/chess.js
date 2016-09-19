@@ -497,6 +497,15 @@ var Chess = function(fen) {
         return [fen, turn, cflags, epflags, half_moves, move_number].join(' ');
     }
 
+    function generate_hash() {
+        var fen = generate_fen();
+        // TODO: include en passant square if there is an en passant move
+        if (half_moves && false) {
+            return fen.split(' ').slice(0, 4).join(' ');
+        }
+        return fen.split(' ').slice(0, 3).join(' ');
+    }
+
     function set_header(args) {
         for (var i = 0; i < args.length; i += 2) {
             if (typeof args[i] === 'string' &&
@@ -1081,29 +1090,28 @@ var Chess = function(fen) {
         var positions = {};
         var repetition = false;
 
+        /* remove the last two fields in the FEN string, they're not needed
+         * when checking for draw by rep */
+        var fen = generate_hash();
+        positions[fen] = 1;
+
         /* greatly reduce cost for most games.
          * maybe consider max_value(positions) + half_moves/4 >= 2?
          */
-        while (half_moves) {
+        while (half_moves && !repetition) {
             var move = undo_move();
             if (!move) break;
             moves.push(move);
-        }
-
-        while (true) {
-            /* remove the last two fields in the FEN string, they're not needed
-             * when checking for draw by rep */
-            var fen = generate_fen().split(' ').slice(0, 4).join(' ');
 
             // has the position occurred three or move times
+            fen = generate_hash();
             positions[fen] = (fen in positions) ? positions[fen] + 1 : 1;
             if (positions[fen] >= 3) {
                 repetition = true;
             }
+        }
 
-            if (!moves.length) {
-                break;
-            }
+        while (moves.length) {
             make_move(moves.pop());
         }
 
