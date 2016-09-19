@@ -21,8 +21,8 @@
             $location.path("login");
         };
 
-        $scope.answerSeek = function(seek){
-
+        $scope.answerSeek = function(seek)
+        {
             if(seek == $scope.userToken.name){
                 //cancel seek
                 relayChess.socket.emit("cancelSeek");
@@ -30,6 +30,11 @@
             }
 
             relayChess.socket.emit("answerSeek", {seek: seek});
+        };
+
+        $scope.joinedGame = function(gameId)
+        {
+            relayChess.socket.emit("joinedGame", {id: gameId});
         };
 
         $scope.openSeekDialog = function()

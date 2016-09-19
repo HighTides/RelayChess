@@ -177,18 +177,19 @@ module.exports = {
                     fen: game.chess.fen(),
                     timing: game.timing,
                     white: {
-                        title: whitePlayer.title,
-                        displayName: whitePlayer.displayName,
-                        rating: whitePlayer.rating,
-                        time: updatedTime.white
+                        title: null,
+                        displayName: game.white,
+                        rating: null,
+                        time: null
                     },
                     black: {
-                        title: blackPlayer.title,
-                        displayName: blackPlayer.displayName,
-                        rating: blackPlayer.rating,
-                        time: updatedTime.black
+                        title: null,
+                        displayName: game.black,
+                        rating: null,
+                        time: null
                     }
                 });
+
                 return;
             }
 

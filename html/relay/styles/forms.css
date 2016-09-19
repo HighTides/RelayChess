@@ -181,3 +181,25 @@
     margin-top:3px;
     margin-bottom:3px;
 }
+
+/* games */
+.game-base {
+    height: 50px;
+    line-height:50px;
+
+    background-color: rgba(255, 255, 255, 0.1);
+
+    cursor:pointer;
+}
+
+.game-base.odd {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.game-base.self {
+    background-color: rgba(206, 171, 43, 0.2);
+}
+
+.game-base:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
