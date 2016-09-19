@@ -937,8 +937,8 @@ var Chess = function(fen) {
                 continue;
             }
 
-            if (ATTACKS[index] & (1 << SHIFTS[piece.type])) {
-
+            if (ATTACKS[index] & (1 << SHIFTS[piece.type]))
+            {
                 // if the piece is a knight or a king
                 if (piece.type === 'n' || piece.type === 'k')
                 {
@@ -1060,15 +1060,15 @@ var Chess = function(fen) {
             var piece = board[i];
             if (piece) {
                 num_pieces++;
+
+                // k vs. k is the only draw
+                if(num_pieces > 2){
+                    return false;
+                }
             }
         }
 
-        // k vs. k is the only draw
-        if (num_pieces === 2) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     function in_threefold_repetition() {
