@@ -12,8 +12,10 @@
 
     var app = angular.module("relayApp");
 
-    app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService) {
+    app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
         $scope.relayChess = relayChess;
+
+        var moveSound = ngAudio.load("sound/standard/Move.ogg");
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -354,6 +356,7 @@
             }
 
             updateActivePlayer();
+            moveSound.play();
 
             //play premove if set
             ground.playPremove();
