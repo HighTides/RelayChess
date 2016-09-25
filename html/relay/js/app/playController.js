@@ -15,6 +15,7 @@
     app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
         $scope.relayChess = relayChess;
 
+        var checkSound = ngAudio.load("sound/robot/Check.ogg");
         var moveSound = ngAudio.load("sound/standard/Move.ogg");
 
         //back to login if we don't have a token
@@ -350,16 +351,21 @@
                 });
             }
 
-            if(chess.in_check())
+            var check;
+            if(check = chess.in_check())
             {
                 ground.setCheck();
             }
 
             updateActivePlayer();
-            moveSound.play();
 
             //play premove if set
             ground.playPremove();
+            moveSound.play();
+            if (check)
+            {
+                checkSound.play();
+            }
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {
