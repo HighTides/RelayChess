@@ -4,7 +4,7 @@
     app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
         $scope.relayChess = relayChess;
 
-        //var berserkSound = ngAudio.load("../../sound/sfx/Berserk.ogg");
+        var berserkSound = ngAudio.load("sound/sfx/Berserk.ogg");
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -50,7 +50,7 @@
 
         $scope.openSeekDialog = function()
         {
-            //berserkSound.play();
+            berserkSound.play();
 
             ModalService.showModal({
                 templateUrl: "seekModal.html",
