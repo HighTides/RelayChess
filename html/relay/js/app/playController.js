@@ -12,11 +12,8 @@
 
     var app = angular.module("relayApp");
 
-    app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
+    app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, ModalService, relayChess, relayAudio) {
         $scope.relayChess = relayChess;
-
-        var checkSound = ngAudio.load("sound/robot/Check.ogg");
-        var moveSound = ngAudio.load("sound/standard/Move.ogg");
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -92,6 +89,8 @@
 
         var lastTimerUpdate = null;
         var timerUpdateFrameRequest = null;
+
+        relayAudio.playSound("newGame");
 
         function startUpdateTimer()
         {
@@ -361,10 +360,22 @@
 
             //play premove if set
             ground.playPremove();
-            moveSound.play();
+
+            //sounds
+            if(response.move.flags.indexOf("c") != -1 || response.move.flags.indexOf("e") != -1){
+                //capture
+                relayAudio.playSound("capture");
+            }
+            else
+            {
+                //move
+                relayAudio.playSound("move");
+            }
+
             if (check)
             {
-                checkSound.play();
+                //check
+                relayAudio.playSound("check");
             }
         });
 

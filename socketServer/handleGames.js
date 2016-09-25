@@ -309,7 +309,8 @@ module.exports = function(socket){
         }
 
         //make the mooooove
-        if(game.chess.move(request.move) == null){
+        var chessMove = game.chess.move(request.move);
+        if(chessMove == null){
             //invalid move
             return;
         }
@@ -317,7 +318,7 @@ module.exports = function(socket){
         //send move and resulting position to players and spectators (fixes castling and en passant)
         var move = {
             id: game.id,
-            move: request.move,
+            move: chessMove,
             fen: game.chess.fen()
         };
 
