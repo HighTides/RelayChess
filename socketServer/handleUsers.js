@@ -63,6 +63,9 @@ module.exports = function(socket){
 
                     //add socket connection
                     data.loggedInUsers[request.token.name].sockets.push(socket);
+
+                    //send user list to new connection
+                    utils.emitUserUpdate(socket);
                 }
                 else
                 {
