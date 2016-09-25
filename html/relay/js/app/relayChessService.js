@@ -1,5 +1,5 @@
 (function() {
-    var socketServer = "http://socket.relaychess.mooo.com:3000/";
+    var socketServer = "http://127.0.0.1:3000/";
 
     var app = angular.module("relayApp");
 
@@ -28,9 +28,9 @@
             });
         });
 
-        socket.on("lobbyUpdate", function (response) {
+        socket.on("userUpdate", function (response) {
             //store online users
-            console.log("socket -> lobbyUpdate");
+            console.log("socket -> userUpdate");
 
             $rootScope.$apply(function () {
                 data.users = response.users;
@@ -57,6 +57,7 @@
 
         //chessgame endpoints
         socket.on("joinGame", function (response) {
+            //move player to game after seek has been accepted etc.
             $rootScope.$apply(function () {
                 $location.path("play/" + response.id + "/" + response.orientation);
             });
@@ -66,20 +67,12 @@
             $rootScope.$emit("setupGame", response);
         });
 
-        socket.on("setupGameSpectate", function (response) {
-            $rootScope.$emit("setupGameSpectate", response);
-        });
-
         socket.on("startGame", function (response) {
             $rootScope.$emit("startGame", response);
         });
 
         socket.on("move", function (response) {
             $rootScope.$emit("move", response);
-        });
-
-        socket.on("moveSpectate", function (response) {
-            $rootScope.$emit("moveSpectate", response);
         });
 
         socket.on("gameOver", function (response) {

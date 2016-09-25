@@ -6,119 +6,133 @@ var _ = require("underscore");
 var data = require("../data");
 var userToken = require("../userToken");
 
-module.exports = {
-    getDatabaseUserByName: function(name)
-    {
-        var user = data.userCollection.findOne({name: name}, {name:1, displayName:1, title:1, rating:1});
+function utils(){ }
 
-        return user;
-    },
+utils.getDatabaseUserByName = function(name)
+{
+    var user = data.userCollection.findOne({name: name}, {name:1, displayName:1, title:1, rating:1});
 
-    getServerUserBySocket: function(socket)
+    return user;
+};
+
+utils.getServerUserBySocket = function(socket)
+{
+    for(var username in data.loggedInUsers)
     {
-        for(var username in data.loggedInUsers)
+        var user = data.loggedInUsers[username];
+
+        if(user.sockets.indexOf(socket) != -1)
         {
-            var user = data.loggedInUsers[username];
-
-            if(user.sockets.indexOf(socket) != -1)
-            {
-                return user;
-            }
+            return user;
         }
+    }
 
-        return null;
-    },
+    return null;
+};
 
-    generateGameID: function()
-    {
-        function generateUUID() {
-            var d = new Date().getTime();
-            var uuid = 'xxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random()*16)%16 | 0;
-                d = Math.floor(d/16);
-                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-            });
-            return uuid;
-        };
+utils.generateGameID = function()
+{
+    function generateUUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        });
+        return uuid;
+    };
 
-        var id;
+    var id;
 
-        //regenerate until we have a unique id
-        while((id = generateUUID()) in data.activeGames){}
+    //regenerate until we have a unique id
+    while((id = generateUUID()) in data.activeGames){}
 
-        return id;
-    },
+    return id;
+};
 
-    emitLobbyUpdate: function(socket)
-    {
-        //send online users and current seeks
-        var publicUsers = [];
+utils.emitUserUpdate = function(socket)
+{
+    //send online users and current seeks
+    var publicUsers = [];
 
-        //remove private fields
-        for(var username in data.loggedInUsers){
-            var user = data.loggedInUsers[username];
+    //remove private fields
+    for(var username in data.loggedInUsers){
+        var user = data.loggedInUsers[username];
 
-            publicUsers.push({
-                name: user.name,
-                title: user.title,
-                displayName: user.displayName,
-                rating: user.rating
-            });
-        }
+        publicUsers.push({
+            name: user.name,
+            title: user.title,
+            displayName: user.displayName,
+            rating: user.rating
+        });
+    }
 
-        socket.emit("lobbyUpdate", {users: publicUsers});
-    },
+    socket.emit("userUpdate", {users: publicUsers});
+};
 
-    emitSeeksUpdate: function(socket)
-    {
-        var publicSeeks = [];
+utils.emitSeeksUpdate = function(socket)
+{
+    var publicSeeks = [];
 
-        for(seek in data.gameSeeks){
-            var seek_ = data.gameSeeks[seek];
+    for(seek in data.gameSeeks){
+        var seek_ = data.gameSeeks[seek];
 
-            publicSeeks.push({
-                name: seek_.user.name,
-                title: seek_.user.title,
-                displayName: seek_.user.displayName,
-                rating: seek_.user.rating,
-                time: seek_.time,
-                increment: seek_.increment
-            });
-        }
+        publicSeeks.push({
+            name: seek_.user.name,
+            title: seek_.user.title,
+            displayName: seek_.user.displayName,
+            rating: seek_.user.rating,
+            time: seek_.time,
+            increment: seek_.increment
+        });
+    }
 
-        socket.emit("seekUpdate", {seeks: publicSeeks});
-    },
+    socket.emit("seekUpdate", {seeks: publicSeeks});
+};
 
-    emitActiveGames: function(socket)
-    {
+utils.emitActiveGames = function(socket)
+{
+    co(function*(){
         var publicGames = [];
 
         for(game in data.activeGames){
-           var game_ = data.activeGames[game];
+            var game_ = data.activeGames[game];
 
-           publicGames.push({
-               id : game_.id,
-               white : game_.white.name,
-               black : game_.black.name,
-               time : game_.time,
-               increment : game_.increment
-           });
+            //get players from db
+            var whitePlayer = yield utils.getDatabaseUserByName(game_.white.name);
+            var blackPlayer = yield utils.getDatabaseUserByName(game_.black.name);
+
+            publicGames.push({
+                id : game_.id,
+                white: {
+                    name: whitePlayer.name,
+                    title: whitePlayer.title,
+                    displayName: whitePlayer.displayName,
+                    rating: whitePlayer.rating
+                },
+                black: {
+                    name: blackPlayer.name,
+                    title: blackPlayer.title,
+                    displayName: blackPlayer.displayName,
+                    rating: blackPlayer.rating
+                },
+                time : game_.time,
+                increment : game_.increment
+            });
         }
 
         socket.emit("activeGameUpdate", {activeGames: publicGames});
-    },
+    });
+};
 
-    emitSpectatorMove: function(game, move)
-    {
-        var message = {
-            id : game.id,
-            move : move
-        };
-
-        for (user in game.spectators) {
-            if (game.spectators[user]) {
-                game.spectators[user].socket.emit("moveSpectate", message);
-            }
+//emit message to all spectators of the game
+utils.emitSpectators = function(game, message, object)
+{
+    for (user in game.spectators) {
+        if (game.spectators[user]) {
+            game.spectators[user].emit(message, object);
         }
     }
 };
+
+module.exports = utils;

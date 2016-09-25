@@ -27,10 +27,12 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-route.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
         <script src="js/angularModalService.js"></script>
+        <script src="js/angular.audio.js"></script>
 
         <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
-        <script src="js/chessground.min.js"></script>
+        <script src="js/chessground.js"></script>
+        <!--<script src="js/chessground.min.js"></script>-->
         <script src="js/chess.js"></script>
 
         <!-- RelayChessApp -->
@@ -41,6 +43,7 @@
         <script src="js/app/playController.js"></script>
         <script src="js/app/seekModalController.js"></script>
         <script src="js/app/minuteFilter.js"></script>
+
     </head>
 
     <body ng-app="relayApp">
@@ -83,9 +86,16 @@
 
         <!-- Lobby -->
         <script type="text/ng-template" id="lobby.html">
-            <div style="display:flex; margin-top:30px; justify-content: center;">
+            <div style="margin-top:10px; display:flex; justify-content: center;">
+                <a class="btn-menu current" ng-click="navigate('lobby')">Lobby</a>
+                <a class="btn-menu" ng-click="navigate('community')">Community</a>
+                <a class="btn-menu" ng-click="navigate('rules')">Rules</a>
+                <a class="btn-menu" href="https://discord.gg/WnEnXZ9" target="_blank">Discord</a>
+            </div>
+
+            <div style="display:flex; margin-top:10px; justify-content: center;">
                 <div style="width:250px; margin-right:10px; flex:0 0 auto;">
-                    <div class="panel" style="height: 200px; overflow: auto; overflow-x: hidden;">
+                    <div class="panel" style="height: 400px; overflow: auto; overflow-x: hidden;">
                         <div style="margin-top: 10px;">{{relayChess.users.length}} Player{{relayChess.users.length!=1?"s":""}} online</div>
                         <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating' : true)">
                             <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
@@ -93,18 +103,11 @@
                             <div style="flex:1 0 auto; text-align: right;">{{user.rating}}</div>
                         </div>
                     </div>
-                    <div class="panel" style="height: 200px; overflow: auto; overflow-x: hidden;">
-                        <ol>
-                            <li>Pieces (including the King, but not pawns), in addition to their natural(*) powers, inherit movement from the natural powers of any piece which currently protects them.</li>
-                            <li>Castling is only performed by moving the King (and not pieces protected by the King) on top of the castling Rook (and not pieces protected by a Rook).</li>
-                            <li>All other rules of chess are observed</li>
-                        </ol>
-                        (*) natural powers are movements naturally accorded to a piece and not those inherited from protecting pieces.
-                    </div>
                 </div>
 
                 <div style="width:500px; flex:0 0 auto;">
-                    <div class="panel" style="min-height: 200px;">
+                    <div class="panel" style="min-height: 400px;">
+                        <div style="margin-top: 10px;">{{relayChess.seeks.length}} Seek{{relayChess.seeks.length!=1?"s":""}}</div>
                         <div class="seek-base" ng-repeat="seek in relayChess.seeks" ng-class-odd="'odd'" ng-click="answerSeek(seek.name)" ng-class="{'self':(seek.name == userToken.name)}">
                             <div style="display:flex; margin-left: 10px; margin-right: 10px;">
                                 <div style="flex:0 0 auto; width: 30%; text-align: left;">
@@ -117,32 +120,69 @@
                             </div>
                         </div>
                     </div>
-                    <div class="panel" style="min-height: 200px;">
-                        <div class="game-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-click="joinedGame(game.id)" ng-class="{'self':(game.white == userToken.name || game.black == userToken.name)}">
-                            <div style="display:flex; margin-left: 10px; margin-right: 10px;">
-                                <div style="flex:0 0 auto; width: 30%; text-align: left;">
-                                    <div style="display:inline-block; color: #d5ac34;">{{game.id}}</div>
-                                    <div style="display:inline-block;">{{game.white}}</div>
+                    <div class="panel" style="min-height: 40px; margin-top: 10px;">
+                        <div style="margin-top: 10px;">{{relayChess.activeGames.length}} Game{{(relayChess.activeGames.length!=1?"s":"") + " in play"}}</div>
+                        <div class="game-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-click="spectateGame(game)" ng-class="{'self':(game.white.name == userToken.name || game.black.name == userToken.name)}">
+                            <div style="display:flex; align-items: center; margin-left: 10px; margin-right: 20px; height: 50px;">
+                                <div style="flex:0 0 auto; text-align: left;">
+                                    <div style="display:inline-block; color: #d5ac34;">{{game.white.title}}</div>
+                                    <div style="display:inline-block;">{{game.white.displayName}} ({{game.white.rating}})</div>
                                 </div>
 
-                                <div style="flex:1 0 auto; width: 30%;">{{game.black}}</div>
-                                <div style="flex:1 0 auto; width: 40%;">{{game.time}}+{{game.increment}}</div>
+                                <p style="flex:0 0 auto; margin:0 10px 0 10px;">vs</p>
+
+                                <div style="flex:0 0 auto; text-align: left;">
+                                    <div style="display:inline-block; color: #d5ac34;">{{game.black.title}}</div>
+                                    <div style="display:inline-block;">{{game.black.displayName}} ({{game.black.rating}})</div>
+                                </div>
+
+                                <div style="flex:1 0 auto; text-align: right;">{{game.time}}+{{game.increment}}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="width:200px; margin-left:10px; flex:0 0 auto; display:flex; flex-direction: column; justify-content: center;">
+                <div style="width:200px; margin-left:10px; flex:0 0 auto; display:flex; flex-direction: column;">
                     <div class="btn-border btn-big yellow" style="margin-bottom: 10px;" ng-click="openSeekDialog();">New Game</div>
                     <div class="btn-border btn-big" style="margin-bottom: 10px; display: none;" ng-click="openFriendSeekDialog();">Play with a friend</div>
-                    <div class="btn-forgot" style="margin-bottom: 10px; display: none;" ng-click="logout()">Logout</div>
+                    <div class="btn-forgot" style="margin-bottom: 10px; " ng-click="logout()">Logout</div>
                 </div>
             </div>
+        </script>
 
-            <blockquote class="pull-quote" style="margin-top: 40px;">
-                <p>TODO: <a href="https://en.wikipedia.org/wiki/Multi-factor_authentication">2FA</a> so I don't have your password</p>
-                <footer>Toadofsky</footer>
-            </blockquote>
+        <!-- Community -->
+        <script type="text/ng-template" id="community.html">
+            <div style="margin-top:10px; display:flex; justify-content: center;">
+                <a class="btn-menu" ng-click="navigate('lobby')">Lobby</a>
+                <a class="btn-menu current" ng-click="navigate('community')">Community</a>
+                <a class="btn-menu" ng-click="navigate('rules')">Rules</a>
+                <a class="btn-menu" href="https://discord.gg/WnEnXZ9" target="_blank">Discord</a>
+            </div>
+
+            <div style="display:flex; margin-top:10px; justify-content: center;">
+                Coming Soon...
+            </div>
+        </script>
+
+        <!-- Rules -->
+        <script type="text/ng-template" id="rules.html">
+            <div style="margin-top:10px; display:flex; justify-content: center;">
+                <a class="btn-menu" ng-click="navigate('lobby')">Lobby</a>
+                <a class="btn-menu" ng-click="navigate('community')">Community</a>
+                <a class="btn-menu current" ng-click="navigate('rules')">Rules</a>
+                <a class="btn-menu" href="https://discord.gg/WnEnXZ9" target="_blank">Discord</a>
+            </div>
+
+            <div style="display:flex; margin-top:10px; justify-content: center;">
+                <div style="width: 700px;">
+                    <div class="rule-header">Official rules of Relay Chess</div>
+                    <div class="rule">Pieces (including the King, but not pawns), in addition to their natural(*) powers, inherit movement from the natural powers of any piece which currently protects them.</div>
+                    <div class="rule">Castling is only performed by moving the King (and not pieces protected by the King) on top of the castling Rook (and not pieces protected by a Rook).</div>
+                    <div class="rule">All other rules of chess are observed.</div>
+                    <div class="rule-footer">(*) natural powers are movements naturally accorded to a piece and not those inherited from protecting pieces.</div>
+
+                </div>
+            </div>
         </script>
 
         <script type="text/ng-template" id="seekModal.html">
@@ -204,7 +244,7 @@
                             <!--<div class="btn-border btn-big">Offer Draw</div>-->
                         </div>
 
-                        <div id="preGame" style="position:relative; padding-top: 10px; padding-bottom:10px;">
+                        <div id="preGame" style="position:relative; padding-top: 10px; padding-bottom:10px; display: none;">
                             <div class="btn-border btn-big" ng-click="abortGame()">Abort Game</div>
                         </div>
                     </div>

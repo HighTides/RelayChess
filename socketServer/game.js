@@ -9,7 +9,7 @@ var utils = require("./utils");
 var chess = require("../chess");
 
 //chess game class
-module.exports = function(white, black, time, increment){
+function game(white, black, time, increment){
     this.id = "";
 
     this.white = {
@@ -115,4 +115,29 @@ module.exports = function(white, black, time, increment){
 
         return null;
     };
-};
+}
+
+game.CreateGame = function(white, black, time, increment){
+    //TODO: sanity check time, increment? 
+    var newGame = new game(white, black, time, increment);
+
+    //generate game id
+    var id = utils.generateGameID();
+    newGame.id = id;
+
+    //store game in cache
+    data.activeGames[id] = newGame;
+
+    return newGame;
+}
+
+game.CreateGameRandom = function(p1, p2, time, increment){
+    //randomize colors
+    var p1IsWhite = Math.random() < 0.5;
+    var white = (p1IsWhite)?p1:p2;
+    var black = (p1IsWhite)?p2:p1;
+
+    return game.CreateGame(white, black, time, increment);
+}
+
+module.exports = game;

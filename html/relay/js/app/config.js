@@ -1,5 +1,5 @@
 (function() {
-    var app = angular.module("relayApp", ["ngRoute", "ngStorage", "angularModalService"]);
+    var app = angular.module("relayApp", ["ngRoute", "ngStorage", "angularModalService", "ngAudio"]);
 
     //config our routes
     app.config(function ($routeProvider) {
@@ -11,6 +11,12 @@
             controller: "loginController"
         }).when("/lobby", {
             templateUrl: "lobby.html",
+            controller: "lobbyController"
+        }).when("/rules", {
+            templateUrl: "rules.html",
+            controller: "lobbyController"
+        }).when("/community", {
+            templateUrl: "community.html",
             controller: "lobbyController"
         }).when("/play/:id/:orientation", {
             templateUrl: "play.html",

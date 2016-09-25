@@ -16,10 +16,9 @@ module.exports = {
     {
         //start the socket server
         io.on("connection", function(socket){
-
-            handleUsers.handle(socket);
-            handleSeeks.handle(socket);
-            handleGames.handle(socket);
+            handleUsers(socket);
+            handleSeeks(socket);
+            handleGames(socket);
        });
     }
 };

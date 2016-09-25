@@ -26,6 +26,8 @@
         //check token
         relayChess.socket.emit("login", {token: $scope.userToken});
 
+        var spectating = false;
+
         $scope.them = {
             title:null,
             displayName:null,
@@ -47,10 +49,12 @@
         var gameRunning = false;
         var gameID = $routeParams.id;
         var orientation = $routeParams.orientation=="w"?"white":"black";
+        var playOrientation;
 
         var chess;
         var ground;
 
+        //join the game (as player or spectator)
         relayChess.socket.emit("joinedGame", {id: gameID});
 
         var fen = undefined;
@@ -59,24 +63,28 @@
         var board = angular.element("#relayBoard")[0];
         ground = Chessground(board,
         {
-            fen: chess.fen(),
             orientation: orientation,
+            turnColor: chessToColor(chess),
             viewOnly: false,
             animation: {
-                duration: 500
+                duration: 250
             },
             movable: {
                 free: false,
+                color: "black",
                 events: {
                     after: onMove
                 }
             },
             premovable: {
-                enabled: false
+                relay: true
             },
             drawable: {
                 enabled: true
-            }
+            },
+            selectable: {
+                enabled: false
+            },
         });
 
         var lastTimerUpdate = null;
@@ -128,8 +136,7 @@
             if(chess.turn() == (orientation=="white"?"w":"b")){
                 $scope.us.active = true;
                 $scope.them.active = false;
-            }
-            else{
+            }else{
                 $scope.them.active = true;
                 $scope.us.active = false;
             }
@@ -150,7 +157,6 @@
             cleanStartGame();
             cleanTimeUpdate();
             cleanMove();
-            cleanSpectate();
             cleanGameOver();
         }
 
@@ -174,13 +180,36 @@
             //TODO
         };
 
-        function switchToInGameUI(){
+        function showUI(state){
             angular.element("#preGame").css("display", "none");
-            angular.element("#gameRunning").css("display", "inherit");
+            angular.element("#gameRunning").css("display", "none");
+            angular.element("#gameOver").css("display", "none");
+
+            if(spectating){
+                //spectator ui
+                if(state == "postgame"){
+                    angular.element("#gameOver").css("display", "inherit");
+                }
+            }
+            else
+            {
+                //player ui
+                if(state == "pregame"){
+                    angular.element("#preGame").css("display", "inherit");
+                }
+                else if(state == "ingame"){
+                    angular.element("#gameRunning").css("display", "inherit");
+                }
+                else if(state == "postgame"){
+                    angular.element("#gameOver").css("display", "inherit");
+                }
+            }
         }
 
         //endpoints
-        var executeSetupGame = function (event, response) {
+        var cleanSetupGame = $rootScope.$on("setupGame", function (event, response) {
+            //update game information
+            console.log("socket -> setupGame");
 
             if(orientation == "white"){
                 $scope.us = response.white;
@@ -192,6 +221,8 @@
 
             //set fen
             chess = new Chess(response.fen);
+
+            playOrientation = response.orientation;
 
             if(chess.turn() == response.orientation) {
                 //our turn
@@ -207,6 +238,7 @@
             }
             else
             {
+                //enable premoves
                 ground.set({
                     fen: response.fen,
                     turnColor: chessToColor(chess)
@@ -217,15 +249,25 @@
             {
                 ground.setCheck();
             }
-        }
-
-        var cleanSetupGame = $rootScope.$on("setupGame", function (event, response) {
-            //update game information
-            console.log("socket -> setupGame");
-
-            executeSetupGame(event, response);
 
             updateActivePlayer();
+
+
+            if("spectate" in response && response.spectate){
+                //we are only spectating
+                console.log("spectating");
+                spectating = true;
+
+                ground.set({
+                    viewOnly: true,
+                    movable: {
+                        color: "none"
+                    },
+                    premovable: {
+                        enabled: false
+                    }
+                });
+            }
 
             if(response.timing)
             {
@@ -233,22 +275,19 @@
                 gameRunning = true;
                 startUpdateTimer();
 
-                switchToInGameUI();
+                console.log("timing")
+                showUI("ingame");
+            }
+            else
+            {
+                //timer not runnning yet
+                showUI("pregame");
             }
 
             //update all the values
             $rootScope.$apply();
         });
 
-        var cleanSetupGameSpectate = $rootScope.$on("setupGameSpectate", function (event, response) {
-            //update game information
-            console.log("socket -> setupGameSpectate");
-
-            executeSetupGame(event, response);
-
-            //update all the values
-            $rootScope.$apply();
-        });
 
         var cleanStartGame = $rootScope.$on("startGame", function (event, response) {
             console.log("socket -> startGame");
@@ -257,7 +296,7 @@
             gameRunning = true;
             startUpdateTimer();
 
-            switchToInGameUI();
+            showUI("ingame");
         });
 
         var cleanTimeUpdate = $rootScope.$on("timeUpdate", function (event, response) {
@@ -277,75 +316,47 @@
             startUpdateTimer();
         });
 
-        var executeMove = function (move) {
-            var orig = move.from;
-            var dest = move.to;
-            var promotion = move.promotion;
+        var cleanMove = $rootScope.$on("move", function (event, response) {
+            console.log("socket -> move");
 
-            if(promotion)
-            {
-                var move = chess.move({from: orig, to: dest, promotion: promotion});
+            //sanity check
+            if(response.id != gameID){
+                return;
+            }
+
+            chess.load(response.fen);
+
+            if (playOrientation == chess.turn() && !spectating) {
+                //our turn -> movable pieces
 
                 ground.set({
-                    fen: chess.fen(),
+                    fen: response.fen,
+                    lastMove: [response.move.from, response.move.to],
                     turnColor: chessToColor(chess),
                     movable: {
                         color: chessToColor(chess),
                         dests: chessToDests(chess)
                     }
                 });
-
-                if(chess.in_check())
-                {
-                    ground.setCheck();
-                }
-
-                return;
             }
-
-            var move = chess.move({from: orig, to: dest});
-
-            if(move == null)
+            else
             {
-                var fen = chess.fen();
-                debugger;
+                //opponents turn or spectating
+                ground.set({
+                    fen: response.fen,
+                    lastMove: [response.move.from, response.move.to]
+                });
             }
-
-            console.log(chess.fen());
-
-            onCastle(move);
-
-            ground.move(orig, dest);
-
-            ground.set({
-                turnColor: chessToColor(chess),
-                movable: {
-                    color: chessToColor(chess),
-                    dests: chessToDests(chess)
-                }
-            });
 
             if(chess.in_check())
             {
                 ground.setCheck();
             }
-        }
-
-        var cleanMove = $rootScope.$on("move", function (event, response) {
-            console.log("socket -> move");
-
-            executeMove(response.move);
 
             updateActivePlayer();
-        });
 
-        var cleanSpectate = $rootScope.$on("moveSpectate", function (event, response) {
-            console.log("socket -> moveSpectate");
-
-            //TODO: Check if response is for the spectating game
-            //(if spectating or playing multiple games)
-            var id = response.id;
-            executeMove(response.move);
+            //play premove if set
+            ground.playPremove();
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {
@@ -354,7 +365,7 @@
                 $scope.gameResultReason = "Game Aborted";
             }
             else if(response.result == "draw"){
-                $scope.gameResult = "1/2 - 1/2";
+                $scope.gameResult = "½ - ½";
                 $scope.gameResultReason = response.reason;
             }
             else if(response.result == "resign"){
@@ -403,10 +414,9 @@
             }
 
             gameRunning = false;
+            ground.stop();
 
-            angular.element("#preGame").css("display", "none");
-            angular.element("#gameRunning").css("display", "none");
-            angular.element("#gameOver").css("display", "inherit");
+            showUI("postgame");
 
             $rootScope.$apply();
         });
@@ -461,7 +471,6 @@
             {
                 ground.setCheck();
             }
-
 
             //send move to server
             relayChess.socket.emit("move", {id: gameID, move: {from: pendingPromotion.orig, to: pendingPromotion.dest, promotion: promote}});

@@ -1,5 +1,5 @@
 (function() {
-    var server = "http://relaychess.mooo.com:9090";
+    var server = "http://127.0.0.1:9090";
 
     var app = angular.module("relayApp");
 
@@ -112,8 +112,7 @@
 
             $scope.requestActive = true;
 
-            $http(
-                {
+            $http({
                     method: "GET",
                     url: server + "/register",
                     params: {username: user.name, password: user.password}

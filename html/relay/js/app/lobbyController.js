@@ -1,8 +1,10 @@
 (function() {
     var app = angular.module("relayApp");
 
-    app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService) {
+    app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
         $scope.relayChess = relayChess;
+
+        //var berserkSound = ngAudio.load("../../sound/sfx/Berserk.ogg");
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -14,6 +16,11 @@
 
         //check token
         relayChess.socket.emit("login", {token: $scope.userToken});
+
+        $scope.navigate = function(to)
+        {
+            $location.path(to);
+        };
 
         $scope.logout = function()
         {
@@ -32,13 +39,19 @@
             relayChess.socket.emit("answerSeek", {seek: seek});
         };
 
-        $scope.joinedGame = function(gameId)
+        $scope.spectateGame = function(game)
         {
-            relayChess.socket.emit("joinedGame", {id: gameId});
+            //determine orientation
+            var orientation = ($scope.userToken.name == game.black.name)?"b":"w";
+
+            //spectate Game
+            $location.path("play/" + game.id + "/" + orientation);
         };
 
         $scope.openSeekDialog = function()
         {
+            //berserkSound.play();
+
             ModalService.showModal({
                 templateUrl: "seekModal.html",
                 controller: "seekModalController"

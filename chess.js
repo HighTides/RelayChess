@@ -1,3 +1,9 @@
+/* @license
+ * Copyright (c) 2016, Jeff Hlywa (jhlywa@gmail.com)
+ * Released under the BSD license
+ * https://github.com/jhlywa/chess.js/blob/master/LICENSE
+ */
+
 // rules
 // ---------------
 // pieces relay move attributes to other pieces they defend
@@ -1596,6 +1602,10 @@ var Chess = function(fen) {
 
         file: function(square) {
             return file(SQUARES[square]);
+        },
+
+        get_move_number: function() {
+            return move_number;
         },
 
         load: function(fen) {

@@ -7,12 +7,12 @@ var co = require("co");
 var _ = require("underscore");
 
 //app modules
+var config = require("./config");
 var data = require("./data");
 var userToken = require("./userToken");
 var socketGameServer = require("./socketServer/socketServer");
 
 var MongoClient = mongodb.MongoClient;
-var databaseURL = "mongodb://localhost:27017/RelayChess";
 
 var app = express();
 
@@ -157,7 +157,7 @@ app.get("/getUserInfo", function(req, res){
 });
 
 //connect to db
-MongoClient.connect(databaseURL, function (err, database) {
+MongoClient.connect(config.databaseURL, function (err, database) {
     if (err) {
         console.log("Unable to connect to the mongoDB server. Error:", err);
     } 
@@ -168,7 +168,7 @@ MongoClient.connect(databaseURL, function (err, database) {
         data.userCollection = database.collection("users");
 
         //start the server
-        app.listen(9090, function(){
+        app.listen(config.apiServerPort, function(){
             console.log("api server running");
 
             socketGameServer.startServer();

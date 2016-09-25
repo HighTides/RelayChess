@@ -1,3 +1,9 @@
+/* @license
+ * Copyright (c) 2016, Jeff Hlywa (jhlywa@gmail.com)
+ * Released under the BSD license
+ * https://github.com/jhlywa/chess.js/blob/master/LICENSE
+ */
+
 // rules
 // ---------------
 // pieces relay move attributes to other pieces they defend
@@ -1063,6 +1069,27 @@ var Chess = function(fen) {
         return !in_check() && generate_moves().length === 0;
     }
 
+    function has_mating_material(color) {
+        var num_pieces = 0;
+        for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+            if (i & 0x88) {
+                i += 7;
+                continue;
+            }
+
+            var piece = board[i];
+            if (piece && piece.color == color) {
+                num_pieces++;
+
+                if(num_pieces == 2){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     function insufficient_material() {
         var num_pieces = 0;
 
@@ -1577,6 +1604,10 @@ var Chess = function(fen) {
             return file(SQUARES[square]);
         },
 
+        get_move_number: function() {
+            return move_number;
+        },
+
         load: function(fen) {
             return load(fen);
         },
@@ -1628,6 +1659,10 @@ var Chess = function(fen) {
                 in_stalemate() ||
                 insufficient_material() ||
                 in_threefold_repetition();
+        },
+
+        has_mating_material: function(color){
+            return has_mating_material(color);
         },
 
         insufficient_material: function() {
