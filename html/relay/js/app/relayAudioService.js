@@ -5,10 +5,18 @@
 
         //load sounds
         var sounds = {
-            check: ngAudio.load("sound/robot/Check.ogg"),
-            move: ngAudio.load("sound/standard/Move.ogg"),
             capture: ngAudio.load("sound/standard/Capture.ogg"),
-            newGame: ngAudio.load("sound/standard/GenericNotify.ogg")
+            challenge: ngAudio.load("sound/sfx/NewChallenge.ogg"),
+            check: ngAudio.load("sound/robot/Check.ogg"),
+            chime: ngAudio.load("sound/sfx/GenericNotify.ogg"),
+            click: ngAudio.load("sound/sfx/Berserk.ogg"),
+            defeat: ngAudio.load("sound/nes/Defeat.ogg"),
+            draw: ngAudio.load("sound/nes/Draw.ogg"),
+            lowtime: ngAudio.load("sound/standard/LowTime.ogg"),
+            move: ngAudio.load("sound/standard/Move.ogg"),
+            notify: ngAudio.load("sound/standard/GenericNotify.ogg"),
+            victory: ngAudio.load("sound/nes/Victory.ogg"),
+            silence: ngAudio.load("sound/Silence.ogg")
         };
 
         function audioService(){ }

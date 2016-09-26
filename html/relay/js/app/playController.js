@@ -1,6 +1,6 @@
 (function() {
     window.requestAnimFrame = (function(){
-        return  window.requestAnimationFrame       ||
+        return  window.requestAnimationFrame   ||
             window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame    ||
             window.oRequestAnimationFrame      ||
@@ -89,8 +89,7 @@
 
         var lastTimerUpdate = null;
         var timerUpdateFrameRequest = null;
-
-        relayAudio.playSound("newGame");
+        var lowtime = false;
 
         function startUpdateTimer()
         {
@@ -130,6 +129,16 @@
 
             if(gameRunning) {
                 timerUpdateFrameRequest = window.requestAnimFrame(updateTimer);
+                if(!spectating) {
+                    if($scope.us.time * 60 >= 20) {
+                        lowtime = false;
+                    } else if($scope.us.time * 60 <= 11) {
+                        if(!lowtime) {
+                            relayAudio.playSound("lowtime");
+                        }
+                        lowtime = true;
+                    }
+                }
             }
         }
 
@@ -279,11 +288,13 @@
 
                 console.log("timing")
                 showUI("ingame");
+                relayAudio.playSound("move");
             }
             else
             {
                 //timer not runnning yet
                 showUI("pregame");
+                relayAudio.playSound("chime");
             }
 
             //update all the values
@@ -362,7 +373,8 @@
             ground.playPremove();
 
             //sounds
-            if(response.move.flags.indexOf("c") != -1 || response.move.flags.indexOf("e") != -1){
+            if(response.move.flags.indexOf("c") != -1 || response.move.flags.indexOf("e") != -1)
+            {
                 //capture
                 relayAudio.playSound("capture");
             }
@@ -435,6 +447,15 @@
 
             gameRunning = false;
             ground.stop();
+            if(!spectating && response.result != "abort"){
+                if((response.winner == "w") == (orientation == "white")){
+                    relayAudio.playSound("victory");
+                } else if((response.winner == "b") == (orientation == "white")){
+                    relayAudio.playSound("defeat");
+                } else {
+                    relayAudio.playSound("draw");
+                }
+            }
 
             showUI("postgame");
 

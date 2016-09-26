@@ -1,10 +1,8 @@
 (function() {
     var app = angular.module("relayApp");
 
-    app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, ngAudio) {
+    app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, relayAudio) {
         $scope.relayChess = relayChess;
-
-        var berserkSound = ngAudio.load("sound/sfx/Berserk.ogg");
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -50,7 +48,7 @@
 
         $scope.openSeekDialog = function()
         {
-            berserkSound.play();
+            relayAudio.playSound("click");
 
             ModalService.showModal({
                 templateUrl: "seekModal.html",
