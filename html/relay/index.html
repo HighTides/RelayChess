@@ -44,6 +44,7 @@
         <script src="js/app/playController.js"></script>
         <script src="js/app/seekModalController.js"></script>
         <script src="js/app/minuteFilter.js"></script>
+        <script src="js/app/ratingFilter.js"></script>
 
 
     </head>
@@ -102,7 +103,7 @@
                         <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating' : true)">
                             <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
                             <div style="flex:0 0 auto;">{{user.displayName}}</div>
-                            <div style="flex:1 0 auto; text-align: right;">{{user.rating}}</div>
+                            <div style="flex:1 0 auto; text-align: right;">{{user.rating | asGlicko2}}</div>
                         </div>
                     </div>
                 </div>
@@ -117,7 +118,7 @@
                                     <div style="display:inline-block;">{{seek.displayName}}</div>
                                 </div>
 
-                                <div style="flex:1 0 auto; width: 30%;">{{seek.rating}}</div>
+                                <div style="flex:1 0 auto; width: 30%;">{{user.rating | asGlicko2}}</div>
                                 <div style="flex:1 0 auto; width: 40%;">{{seek.time}}+{{seek.increment}}</div>
                             </div>
                         </div>
@@ -128,14 +129,14 @@
                             <div style="display:flex; align-items: center; margin-left: 10px; margin-right: 20px; height: 50px;">
                                 <div style="flex:0 0 auto; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{game.white.title}}</div>
-                                    <div style="display:inline-block;">{{game.white.displayName}} ({{game.white.rating}})</div>
+                                    <div style="display:inline-block;">{{game.white.displayName}} ({{game.white.rating | asGlicko2}})</div>
                                 </div>
 
                                 <p style="flex:0 0 auto; margin:0 10px 0 10px;">vs</p>
 
                                 <div style="flex:0 0 auto; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{game.black.title}}</div>
-                                    <div style="display:inline-block;">{{game.black.displayName}} ({{game.black.rating}})</div>
+                                    <div style="display:inline-block;">{{game.black.displayName}} ({{game.black.rating | asGlicko2}})</div>
                                 </div>
 
                                 <div style="flex:1 0 auto; text-align: right;">{{game.time}}+{{game.increment}}</div>
@@ -229,7 +230,7 @@
                         <div style="height:40px; line-height: 40px; flex:1 0 auto; background: #2c2c2c;">
                             <div style="display:flex; margin-left:10px; margin-right:10px;">
                                 <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{them.title}}</div>
-                                <div style="flex:0 0 auto; margin-right: 10px;">{{them.displayName}} ({{them.rating}}) {{them.ratingChange}}</div>
+                                <div style="flex:0 0 auto; margin-right: 10px;">{{them.displayName}} ({{them.rating | asGlicko2}}) {{them.ratingChange}}</div>
                             </div>
                         </div>
                     </div>
@@ -259,7 +260,7 @@
                         <div style="height:40px; line-height: 40px; flex:1 0 auto; background: #2c2c2c;">
                             <div style="display:flex; margin-left:10px; margin-right:10px;">
                                 <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{us.title}}</div>
-                                <div style="flex:0 0 auto; margin-right: 10px;">{{us.displayName}} ({{us.rating}}) {{us.ratingChange}}</div>
+                                <div style="flex:0 0 auto; margin-right: 10px;">{{us.displayName}} ({{us.rating | asGlicko2}}) {{us.ratingChange}}</div>
                             </div>
                         </div>
                     </div>

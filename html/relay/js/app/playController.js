@@ -430,8 +430,8 @@
 
             if(response.result != "abort"){
                 //display rating change
-                var whiteChange = response.ratings.white - response.preRatings.white;
-                var blackChange = response.ratings.black - response.preRatings.black;
+                var whiteChange = response.ratings.white.r - response.preRatings.white.r;
+                var blackChange = response.ratings.black.r - response.preRatings.black.r;
 
                 if(whiteChange>=0) whiteChange= "+" + whiteChange;
                 if(blackChange>=0) blackChange= "+" + blackChange;
