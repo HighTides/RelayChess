@@ -1,11 +1,11 @@
 var io = require("./socketConnection");
 var co = require("co");
+var glicko2 = require("glicko2-lite");
 var _ = require("underscore");
 
 //app modules
 var data = require("../data");
 var userToken = require("../userToken");
-var elo = require("../eloRating");
 
 var utils = require("./utils");
 
@@ -104,8 +104,12 @@ module.exports = function(socket){
                 var playerWhite = yield data.userCollection.findOne({name: game.white.name});
                 var playerBlack = yield data.userCollection.findOne({name: game.black.name});
 
-                //TODO: glicko 2
-                var adjustedRatings = elo.getNewRatings(playerWhite.rating, playerBlack.rating, nResult, 32, 32);
+                //TODO: finish glicko 2
+                var newRatings = {
+                    white: glicko2(playerWhite.rating, 350, 0.06, [[playerBlack.rating, 350, nResult]]),
+                    black: glicko2(playerBlack.rating, 350, 0.06, [[playerWhite.rating, 350, 1-nResult]])
+                };
+                var adjustedRatings = {white:newRatings.white.rating, black:newRatings.black.rating};
 
                 //update user db 
                 yield data.userCollection.update({name:playerWhite.name}, {$set:{rating:adjustedRatings.white}});

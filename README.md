@@ -8,7 +8,7 @@ MongoDB 3.2.9
 NodeJS 6.5.0
 
 # Dependencies
-co, underscore, mongodb
+co, glicko2-lite, mongodb, underscore
 
 To deploy restore the RelayChess database using `mongorestore`, install node & required dependencies, and launch `app.js`.
 
