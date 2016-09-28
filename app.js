@@ -158,11 +158,13 @@ app.get("/getUserInfo", function(req, res){
 
 //connect to db
 MongoClient.connect(config.databaseURL, function (err, database) {
-    if (err) {
+    if (err)
+    {
         console.log("Unable to connect to the mongoDB server. Error:", err);
     } 
     else 
     {
+        console.log("Connected to the mongoDB server.");
         data.database = database;
         data.gameCollection = database.collection("games");
         data.userCollection = database.collection("users");
