@@ -100,7 +100,7 @@
                 <div style="width:250px; margin-right:10px; flex:0 0 auto;">
                     <div class="panel" style="height: 400px; overflow: auto; overflow-x: hidden;">
                         <div style="margin-top: 10px;">{{relayChess.users.length}} Player{{relayChess.users.length!=1?"s":""}} online</div>
-                        <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating' : true)">
+                        <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating.r' : true)">
                             <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
                             <div style="flex:0 0 auto;">{{user.displayName}}</div>
                             <div style="flex:1 0 auto; text-align: right;">{{user.rating | asGlicko2}}</div>
