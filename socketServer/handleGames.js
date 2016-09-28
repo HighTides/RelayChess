@@ -103,25 +103,30 @@ module.exports = function(socket){
                 //update player ratings
                 var playerWhite = yield data.userCollection.findOne({name: game.white.name});
                 var playerBlack = yield data.userCollection.findOne({name: game.black.name});
+                var ratingWhite = playerWhite.rating;
+                var ratingBlack = playerBlack.rating;
 
                 //TODO: finish glicko 2
+                //ultimately, HTML should display r ± 2*RD as the 95% confidence interval
                 var newRatings = {
-                    white: glicko2(playerWhite.rating, 350, 0.06, [[playerBlack.rating, 350, nResult]]),
-                    black: glicko2(playerBlack.rating, 350, 0.06, [[playerWhite.rating, 350, 1-nResult]])
+                    white: glicko2(ratingWhite.r, ratingWhite.rd, ratingWhite.vol, [[ratingBlack.r, ratingBlack.rd, nResult]]),
+                    black: glicko2(ratingBlack.r, ratingBlack.rd, ratingBlack.vol, [[ratingWhite.r, ratingWhite.rd, 1-nResult]])
                 };
-                var adjustedRatings = {white:newRatings.white.rating, black:newRatings.black.rating};
+                var adjustedRatings = {
+                    white: {r:newRatings.white.rating, rd:newRatings.white.rd, vol:newRatings.white.vol},
+                    black: {r:newRatings.black.rating, rd:newRatings.black.rd, vol:newRatings.black.vol}
+                };
 
                 //update user db 
                 yield data.userCollection.update({name:playerWhite.name}, {$set:{rating:adjustedRatings.white}});
                 yield data.userCollection.update({name:playerBlack.name}, {$set:{rating:adjustedRatings.black}});
 
-                result.preRatings = { white: playerWhite.rating, black: playerBlack.rating };
+                result.preRatings = { white: ratingWhite, black: ratingBlack };
                 result.ratings = adjustedRatings;
 
                 //update server users
                 if(playerWhite.name in data.loggedInUsers)
                     data.loggedInUsers[playerWhite.name].rating = adjustedRatings.white;
-
                 if(playerBlack.name in data.loggedInUsers)
                     data.loggedInUsers[playerBlack.name].rating = adjustedRatings.black;
 
