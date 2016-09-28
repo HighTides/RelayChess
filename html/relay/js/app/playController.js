@@ -448,9 +448,9 @@
             gameRunning = false;
             ground.stop();
             if(!spectating && response.result != "abort"){
-                if((response.winner == "w") == (orientation == "white")){
+                if((response.winner == "w") == (playOrientation == "white")){
                     relayAudio.playSound("victory");
-                } else if((response.winner == "b") == (orientation == "white")){
+                } else if((response.winner == "b") == (playOrientation == "white")){
                     relayAudio.playSound("defeat");
                 } else {
                     relayAudio.playSound("draw");
