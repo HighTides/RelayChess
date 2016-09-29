@@ -36,17 +36,14 @@ app.post('/', function(req, res, next) {
 function checkUserPasswordInput(req)
 {
     if(!("username" in req.query) || !_.isString(req.query.username) ||
-        req.query.username.length < 3 ||
-        req.query.username.length > 20 ||
-        /[^0-9a-zA-Z_-]/g.test(req.query.username))
+       !(/^[0-9a-z]{3,20}$/i).test(req.query.username))
     {
         //username invalid
         return false;
     }
 
     if(!("password" in req.query) || !_.isString(req.query.password) ||
-        req.query.password.length < 3 ||
-        req.query.password.length > 20)
+       !(/^.{3,20}$/).test(req.query.password))
     {
         //password invalid
         return false;

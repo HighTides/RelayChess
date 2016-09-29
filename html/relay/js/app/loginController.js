@@ -30,32 +30,32 @@
                 return false;
 
             //user has name with at least 3 characters
-            if(!("name" in user) || user.name.length < 3 ) {
+            if(!("name" in user) || user.name.length < 3) {
                 $scope.message = "Username too short";
                 return false;
             }
 
             //maximum length of username 20 characters
-            if(user.name.length > 20 ) {
+            if(user.name.length > 20) {
                 $scope.message = "Username too long";
                 return false;
             }
 
-            //no special characters except - _ in username
-            if(/[^0-9a-zA-Z_-]/g.test(user.name))
+            //no special characters in username
+            if(!(/^[0-9a-z]{3,20}$/i).test(req.query.username))
             {
-                $scope.message = "No special characters except ( - , _ ) in username allowed";
+                $scope.message = "Username must be alphanumeric";
                 return false;
             }
 
-            //user has password with at least 3 characters and a max of 16
-            if(!("password" in user) || user.password.length < 3 ) {
+            //user has password with at least 3 characters
+            if(!("password" in user) || user.password.length < 3) {
                 $scope.message = "Password too short";
                 return false;
             }
 
             //maximum password length 20 characters
-            if(user.password.length > 20 ) {
+            if(user.password.length > 20) {
                 $scope.message = "Password too long";
                 return false;
             }
