@@ -440,8 +440,8 @@
 
             if(response.result != "abort"){
                 //display rating change
-                var whiteChange = response.ratings.white.r - response.preRatings.white.r;
-                var blackChange = response.ratings.black.r - response.preRatings.black.r;
+                var whiteChange = Math.round(response.ratings.white.r - response.preRatings.white.r);
+                var blackChange = Math.round(response.ratings.black.r - response.preRatings.black.r);
 
                 if(whiteChange>=0) whiteChange= "+" + whiteChange;
                 if(blackChange>=0) blackChange= "+" + blackChange;
