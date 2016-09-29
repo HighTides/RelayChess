@@ -105,9 +105,6 @@ module.exports = function(socket){
                 var playerBlack = yield data.userCollection.findOne({name: game.black.name});
                 var ratingWhite = playerWhite.rating;
                 var ratingBlack = playerBlack.rating;
-
-                //TODO: finish glicko 2
-                //ultimately, HTML should display r ± 2*RD as the 95% confidence interval
                 var newRatings = {
                     white: glicko2(ratingWhite.r, ratingWhite.rd, ratingWhite.vol, [[ratingBlack.r, ratingBlack.rd, nResult]]),
                     black: glicko2(ratingBlack.r, ratingBlack.rd, ratingBlack.vol, [[ratingWhite.r, ratingWhite.rd, 1-nResult]])
@@ -204,7 +201,7 @@ module.exports = function(socket){
                 socket.emit("setupGame", {
                     spectate: true,
                     orientation: "w", //spectators see white by default
-                    fen: game.chess.fen(),
+                    history: game.chess.history(),
                     timing: game.timing,
                     white: {
                         title: whitePlayer.title,
@@ -228,7 +225,7 @@ module.exports = function(socket){
 
             socket.emit("setupGame", {
                 orientation: color,
-                fen: game.chess.fen(),
+                history: game.chess.history(),
                 timing: game.timing,
                 white: {
                     title: whitePlayer.title,

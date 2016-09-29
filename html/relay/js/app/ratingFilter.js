@@ -3,7 +3,7 @@
 
     app.filter("asGlicko2", function(){
         return function(input){
-            return Math.round(input.r) + " ± " + Math.round(input.rd*2);
+            return input == null ? null : Math.round(input.r) + " ± " + Math.round(input.rd*2);
         };
     });
 

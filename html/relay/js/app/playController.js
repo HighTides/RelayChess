@@ -230,8 +230,16 @@
                 $scope.them = response.white;
             }
 
-            //set fen
-            chess = new Chess(response.fen);
+            //set history and position
+            chess = new Chess();
+            for (move in response.history) {
+                chess.move(response.history[move]);
+            }
+            var lastMove = null;
+            var history = chess.history({verbose: true});
+            for (move in history) {
+                lastMove = history[move];
+            }
 
             playOrientation = response.orientation;
 
@@ -240,6 +248,7 @@
                 //make pieces movable
                 ground.set({
                     fen: chess.fen(),
+                    lastMove: lastMove == null ? null : [lastMove.from, lastMove.to],
                     turnColor: chessToColor(chess),
                     movable: {
                         color: chessToColor(chess),
@@ -252,6 +261,7 @@
                 //enable premoves
                 ground.set({
                     fen: response.fen,
+                    lastMove: lastMove == null ? null : [lastMove.from, lastMove.to],
                     turnColor: chessToColor(chess)
                 });
             }
