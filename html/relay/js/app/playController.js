@@ -84,7 +84,7 @@
             },
             selectable: {
                 enabled: false
-            },
+            }
         });
 
         var lastTimerUpdate = null;
@@ -475,19 +475,19 @@
         //promotion ui
         var pendingPromotion = null;
 
-        $("#promoteQueen").click(function(){
+        $(".promoteQueen").click(function(){
             onPromotionFinalize("q");
         });
 
-        $("#promoteRook").click(function(){
+        $(".promoteRook").click(function(){
             onPromotionFinalize("r");
         });
 
-        $("#promoteBishop").click(function(){
+        $(".promoteBishop").click(function(){
             onPromotionFinalize("b");
         });
 
-        $("#promoteKnight").click(function(){
+        $(".promoteKnight").click(function(){
             onPromotionFinalize("n");
         });
 
@@ -495,7 +495,7 @@
         {
             pendingPromotion = {orig: orig, dest: dest};
 
-            $("#promotePanel").css("visibility", "visible");
+            $(".promotePanel").css("visibility", "visible");
         };
 
         function onPromotionFinalize(promote)
@@ -505,7 +505,7 @@
                 return;
             }
 
-            $("#promotePanel").css("visibility", "hidden");
+            $(".promotePanel").css("visibility", "hidden");
 
             var move = chess.move({from: pendingPromotion.orig, to: pendingPromotion.dest, promotion: promote});
 

@@ -9,4 +9,15 @@
 
         $scope.close = close;
     });
+
+    app.controller("seekAIModalController", function ($scope, close) {
+        $scope.setAILevel = function(level)
+        {
+            if(level >= 1 && level <= 5){
+                close(level);
+            }
+        };
+
+        $scope.close = close;
+    });
 })();

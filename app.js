@@ -134,7 +134,7 @@ app.get("/register", function(req, res){
             passwordHash: hash,
             passwordSalt: salt,
             title: "",
-            rating: 1500
+            rating: {r: 1500, rd: 350.0, vol: 0.06}
         };
 
         var insertResult = yield data.userCollection.insertOne(newUser);

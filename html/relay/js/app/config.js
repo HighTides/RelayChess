@@ -21,6 +21,9 @@
         }).when("/play/:id/:orientation", {
             templateUrl: "play.html",
             controller: "playController"
+        }).when("/playAI/:level/:orientation", {
+            templateUrl: "playAI.html",
+            controller: "playAIController"
         }).otherwise({redirectTo: "/"});
     });
 })();

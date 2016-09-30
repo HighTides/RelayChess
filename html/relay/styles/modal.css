@@ -1,4 +1,4 @@
-#overlay {
+.modal-overlay {
     position: fixed;
     left: 50%;
     margin-left:-200px;
@@ -16,7 +16,7 @@
     border-radius:5px;
 }
 
-#fade {
+.fade {
     position: fixed;
     left: 0%;
     top: 0%;
@@ -29,17 +29,17 @@
     z-index: 90;
 }
 
-#custom-modal.ng-enter {
+.custom-modal.ng-enter {
     transition: opacity .5s ease-out;
     opacity: 0;
 }
-#custom-modal.ng-enter.ng-enter-active {
+.custom-modal.ng-enter.ng-enter-active {
     opacity: 1;
 }
-#custom-modal.ng-leave {
+.custom-modal.ng-leave {
     transition: opacity .5s ease-out;
     opacity: 1;
 }
-#custom-modal.ng-leave.ng-leave-active {
+.custom-modal.ng-leave.ng-leave-active {
     opacity: 0;
 }

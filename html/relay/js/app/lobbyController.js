@@ -69,6 +69,26 @@
             });
         };
 
+        $scope.openSeekAIDialog = function()
+        {
+            relayAudio.playSound("click");
+
+            ModalService.showModal({
+                templateUrl: "seekAIModal.html",
+                controller: "seekAIModalController"
+            }).then(function(modal){
+                modal.close.then(function(result){
+                    if(result)
+                    {
+                        console.log("new ai game " + result);
+
+                        //start AI game
+                        $location.path("playAI/" + result + "/w");
+                    }
+                });
+            });
+        };
+
         $scope.openFriendSeekDialog = function()
         {
             ModalService.showModal({

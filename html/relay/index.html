@@ -30,9 +30,12 @@
         <script src="js/angular.audio.js"></script>
 
         <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
         <script src="js/chessground.js"></script>
         <!--<script src="js/chessground.min.js"></script>-->
+
+        <script src="js/relayAI.js"></script>
         <script src="js/chess.js"></script>
 
         <!-- RelayChessApp -->
@@ -42,11 +45,10 @@
         <script src="js/app/loginController.js"></script>
         <script src="js/app/lobbyController.js"></script>
         <script src="js/app/playController.js"></script>
-        <script src="js/app/seekModalController.js"></script>
+        <script src="js/app/playAIController.js"></script>
+        <script src="js/app/ModalControllers.js"></script>
         <script src="js/app/minuteFilter.js"></script>
         <script src="js/app/ratingFilter.js"></script>
-
-
     </head>
 
     <body ng-app="relayApp">
@@ -146,6 +148,7 @@
 
                 <div style="width:200px; margin-left:10px; flex:0 0 auto; display:flex; flex-direction: column;">
                     <div class="btn-border btn-big yellow" style="margin-bottom: 10px;" ng-click="openSeekDialog();">New Game</div>
+                    <div class="btn-border btn-big yellow" style="margin-bottom: 10px; display: none;" ng-click="openSeekAIDialog();">Play Computer</div>
                     <div class="btn-border btn-big" style="margin-bottom: 10px; display: none;" ng-click="openFriendSeekDialog();">Play with a friend</div>
                     <div class="btn-forgot" style="margin-bottom: 10px; " ng-click="logout()">Logout</div>
                 </div>
@@ -188,8 +191,8 @@
         </script>
 
         <script type="text/ng-template" id="seekModal.html">
-            <div id="custom-modal">
-                <div id="overlay">
+            <div class="custom-modal">
+                <div class="modal-overlay">
                     <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(1,0)">1+0</div>
                     <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(3,0)">3+0</div>
                     <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(5,0)">5+0</div>
@@ -200,7 +203,20 @@
                     <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(5,2)">5+2</div>
                     <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setTimeControl(10,2)">10+2</div>
                 </div>
-                <div id="fade" ng-click="close()"></div>
+                <div class="fade" ng-click="close()"></div>
+            </div>
+        </script>
+
+        <script type="text/ng-template" id="seekAIModal.html">
+            <div class="custom-modal">
+                <div class="modal-overlay">
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setAILevel(1)">1</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setAILevel(2)">2</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setAILevel(3)">3</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setAILevel(4)">4</div>
+                    <div class="btn-border btn-big yellow seek-time-button" style="display: inline-block;" ng-click="setAILevel(5)">5</div>
+                </div>
+                <div class="fade" ng-click="close()"></div>
             </div>
         </script>
 
@@ -209,11 +225,11 @@
                 <div class="panel" style="height:600px; width:300px; margin-right: 20px; margin-top:70px; visibility: hidden;"></div>
 
                 <div style="width: 600px;">
-                    <div class="promotePanel center" id="promotePanel">
-                        <div style="flex: 1 1 auto;" class="promote queen" id="promoteQueen"></div>
-                        <div style="flex: 1 1 auto;" class="promote rook" id="promoteRook"></div>
-                        <div style="flex: 1 1 auto;" class="promote knight" id="promoteKnight"></div>
-                        <div style="flex: 1 1 auto;" class="promote bishop" id="promoteBishop"></div>
+                    <div class="promotePanel center">
+                        <div style="flex: 1 1 auto;" class="promote queen promoteQueen"></div>
+                        <div style="flex: 1 1 auto;" class="promote rook promoteRook"></div>
+                        <div style="flex: 1 1 auto;" class="promote knight promoteKnight"></div>
+                        <div style="flex: 1 1 auto;" class="promote bishop promoteBishop"></div>
                     </div>
 
                     <div class="brown cburnett" id="relayBoard" style="width: 600px; height:600px;"></div>
@@ -265,6 +281,21 @@
                     </div>
                 </div>
 
+            </div>
+        </script>
+
+        <script type="text/ng-template" id="playAI.html">
+            <div class="game">
+                <div style="width: 600px;">
+                    <div class="promotePanel center" class="promotePanel">
+                        <div style="flex: 1 1 auto;" class="promote queen" class="promoteQueen"></div>
+                        <div style="flex: 1 1 auto;" class="promote rook" class="promoteRook"></div>
+                        <div style="flex: 1 1 auto;" class="promote knight" class="promoteKnight"></div>
+                        <div style="flex: 1 1 auto;" class="promote bishop" class="promoteBishop"></div>
+                    </div>
+
+                    <div class="brown cburnett" id="relayAIBoard" style="width: 600px; height:600px;"></div>
+                </div>
             </div>
         </script>
 
