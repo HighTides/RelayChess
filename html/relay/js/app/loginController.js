@@ -1,5 +1,5 @@
 (function() {
-    var server = "http://188.166.194.141:9090";
+    var server = "http://relaychess.mooo.com:9090";
 
     var app = angular.module("relayApp");
 
@@ -42,7 +42,7 @@
             }
 
             //no special characters in username
-            if(!(/^[0-9a-z]{3,20}$/i).test(req.query.username))
+            if(!(/^[0-9a-z]{3,20}$/i).test(user.name))
             {
                 $scope.message = "Username must be alphanumeric";
                 return false;
