@@ -893,6 +893,7 @@ var Chess = function(fen) {
 
     function buildAttributes()
     {
+        var us = turn;
         for (var i = SQUARES.a8; i <= SQUARES.h1; i++)
         {
             // did we run off the end of the board
@@ -902,8 +903,8 @@ var Chess = function(fen) {
                 continue;
             }
 
-            // if empty square
-            if (board[i] == null) continue;
+            // if empty square or not our piece
+            if (board[i] == null || board[i].color !== us) continue;
 
             board[i].attributes = undefined;
 
