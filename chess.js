@@ -1628,13 +1628,18 @@ var Chess = function(fen) {
 
             for (var i = 0, len = ugly_moves.length; i < len; i++) {
 
-                /* does the user want a full move object (most likely not), or just
-                 * SAN
+                /* does the user want a full move object (most likely not), SAN,
+                 * or the raw move object
                  */
                 if (typeof options !== 'undefined' && 'verbose' in options &&
                     options.verbose) {
                     moves.push(make_pretty(ugly_moves[i]));
+                } else if (typeof options !== 'undefined' && 'san' in options &&
+                    options.san) {
+                    moves.push(move_to_san(ugly_moves[i], false));
                 } else {
+                    moves.push(ugly_moves[i]);
+                }
                     moves.push(move_to_san(ugly_moves[i], false));
                 }
             }
