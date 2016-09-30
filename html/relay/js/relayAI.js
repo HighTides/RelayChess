@@ -81,10 +81,10 @@ function relayChessAI(){
     {
         var best_score = -9999;
         var best_move = '';
-        var moves = tchess.moves({san: true});
+        var tempchess = new Chess(tchess.fen());
+        var moves = tempchess.moves({san: true});
         for (var index = 0; index < moves.length; index++)
         {
-            var tempchess = new Chess(tchess.fen());
             tempchess.move(moves[index]);
             var move_score;
             if (tempchess.in_checkmate()){
@@ -102,19 +102,19 @@ function relayChessAI(){
                 best_score = move_score;
                 best_move = moves[index];
             }
+            tempchess.undo_move();
         }
         return best_move;
     }
 
-    function alphaBeta(tchess,depth)
+    function alphaBeta(tempchess,depth)
     {
         console.log(depth);
         var best_score = -9999;
-        var moves = tchess.moves();
+        var moves = tempchess.moves();
         for (var index = 0; index < moves.length; index++)
         {
-            var tempchess = new Chess(tchess.fen());
-            tempchess.move(moves[index]);
+            tempchess.make_move(moves[index]);
             var move_score;
             if (tempchess.in_checkmate()){
                 move_score = 9998;//last player to make move won
@@ -130,6 +130,7 @@ function relayChessAI(){
             if (move_score > best_score){
                 best_score = move_score;
             }
+            tempchess.undo_move();
         }
         return best_score;
     }

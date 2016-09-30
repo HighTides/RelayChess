@@ -1977,9 +1977,17 @@ var Chess = function(fen) {
             return pretty_move;
         },
 
+        make_move: function(move_obj) {
+            make_move(move_obj);
+        },
+
         undo: function() {
             var move = undo_move();
             return (move) ? make_pretty(move) : null;
+        },
+
+        undo_move: function() {
+            undo_move();
         },
 
         clear: function() {
