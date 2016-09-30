@@ -81,7 +81,7 @@ function relayChessAI(){
     {
         var best_score = -9999;
         var best_move = '';
-        var moves = tchess.moves();
+        var moves = tchess.moves({san: true});
         for (var index = 0; index < moves.length; index++)
         {
             var tempchess = new Chess(tchess.fen());
