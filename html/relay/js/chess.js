@@ -894,25 +894,14 @@ var Chess = function(fen) {
     function buildAttributes()
     {
         var us = turn;
-        for (var i = SQUARES.a8; i <= SQUARES.h1; i++)
+        var pieces = material(us, [KNIGHT, BISHOP, ROOK, QUEEN, KING]);
+        for (var n=0; n<pieces.length; n++)
         {
-            // did we run off the end of the board
-            if (i & 0x88)
-            {
-                i += 7;
-                continue;
-            }
-
-            // if empty square or not our piece
-            if (board[i] == null || board[i].color !== us) continue;
-
+            var i = pieces[n];
             board[i].attributes = undefined;
 
-            // pawns cannot have attributes
-            if(board[i].type === PAWN) continue;
-
             //we have a piece
-            var attackers = getPieceAttackers(board[i].color, i);
+            var attackers = getPieceAttackers(pieces, i);
 
             //add own piece type to the move attributes
             var attributes = attackers | (1 << SHIFTS[board[i].type]);
@@ -935,34 +924,20 @@ var Chess = function(fen) {
         }
     }
 
-    function getPieceAttackers(color, square) {
+    function getPieceAttackers(pieces, square) {
         var attackers = 0;
 
-        for (var i = SQUARES.a8; i <= SQUARES.h1; i++)
+        for (var n=0; n<pieces.length; n++)
         {
-            // did we run off the end of the board
-            if (i & 0x88)
-            {
-                i += 7;
-                continue;
-            }
-
-            // if empty square or wrong color
-            if (board[i] == null || board[i].color !== color) continue;
-
+            var i = pieces[n];
             var piece = board[i];
             var difference = i - square;
             var index = difference + 119;
 
-            //pawns do not relay attributes
-            if (piece.type === PAWN) {
-                continue;
-            }
-
             if (ATTACKS[index] & (1 << SHIFTS[piece.type]))
             {
                 // if the piece is a knight or a king
-                if (piece.type === 'n' || piece.type === 'k')
+                if (piece.type === KNIGHT || piece.type === KING)
                 {
                     attackers |= (1 << SHIFTS[piece.type]);
                     continue;
@@ -1070,25 +1045,29 @@ var Chess = function(fen) {
         return !in_check() && generate_moves().length === 0;
     }
 
-    function has_mating_material(color) {
-        var num_pieces = 0;
+    function material(color, types) {
+        var pieces = [];
         for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+
+            // did we run off the end of the board
             if (i & 0x88) {
                 i += 7;
                 continue;
             }
 
+            // if empty square or not our piece
             var piece = board[i];
-            if (piece && piece.color == color) {
-                num_pieces++;
-
-                if(num_pieces == 2){
-                    return true;
-                }
+            if (piece && piece.color == color && types.includes(piece.type)) {
+                pieces.push(i);
             }
         }
 
-        return false;
+        return pieces;
+    }
+
+
+    function has_mating_material(color) {
+        return material(color, [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]).length >= 2;
     }
 
     function insufficient_material() {
