@@ -82,7 +82,7 @@ function relayChessAI(){
         var best_score = -9999;
         var best_move = '';
         var tempchess = new Chess(tchess.fen());
-        var moves = tempchess.moves({san: true});
+        var moves = tempchess.moves();
         for (var index = 0; index < moves.length; index++)
         {
             tempchess.move(moves[index]);
@@ -111,7 +111,7 @@ function relayChessAI(){
     {
         console.log(depth);
         var best_score = -9999;
-        var moves = tempchess.moves();
+        var moves = tempchess.moves({raw: true});
         for (var index = 0; index < moves.length; index++)
         {
             tempchess.make_move(moves[index]);

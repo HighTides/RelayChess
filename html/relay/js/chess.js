@@ -10,10 +10,6 @@
 // pawns are excluded from receiving and relaying attributes
 // castling cannot be relayed
 // to castle drag the king on the rook (resolves ambiguity because the king has the powers of the rook and can legally go to the g, c or b files)
-
-// chessground missing documentation: fen, autoCastle
-
-//TODO: cleanup, webdesign, server setup, show checks, move history (fen list)
 var Chess = function(fen) {
 
     // jshint indent: false
@@ -1606,19 +1602,20 @@ var Chess = function(fen) {
             var ugly_moves = generate_moves(options);
             var moves = [];
 
-            for (var i = 0, len = ugly_moves.length; i < len; i++) {
+            if(typeof options !== 'undefined' && 'raw' in options &&
+                options.raw){
+                return ugly_moves;
+            }
 
+            for (var i = 0, len = ugly_moves.length; i < len; i++) {
                 /* does the user want a full move object (most likely not), SAN,
                  * or the raw move object
                  */
                 if (typeof options !== 'undefined' && 'verbose' in options &&
                     options.verbose) {
                     moves.push(make_pretty(ugly_moves[i]));
-                } else if (typeof options !== 'undefined' && 'san' in options &&
-                    options.san) {
-                    moves.push(move_to_san(ugly_moves[i], false));
                 } else {
-                    moves.push(ugly_moves[i]);
+                    moves.push(move_to_san(ugly_moves[i], false));
                 }
             }
 
