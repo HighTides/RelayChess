@@ -9,8 +9,9 @@ var utils = require("./utils");
 var chess = require("../chess");
 
 //chess game class
-function game(white, black, time, increment){
+function game(white, black, time, increment, rated){
     this.id = "";
+    this.rated = rated;
 
     this.white = {
             name: white,
@@ -117,9 +118,9 @@ function game(white, black, time, increment){
     };
 }
 
-game.CreateGame = function(white, black, time, increment){
+game.CreateGame = function(white, black, time, increment, rated){
     //TODO: sanity check time, increment? 
-    var newGame = new game(white, black, time, increment);
+    var newGame = new game(white, black, time, increment, rated);
 
     //generate game id
     var id = utils.generateGameID();
@@ -131,13 +132,13 @@ game.CreateGame = function(white, black, time, increment){
     return newGame;
 }
 
-game.CreateGameRandom = function(p1, p2, time, increment){
+game.CreateGameRandom = function(p1, p2, time, increment, rated){
     //randomize colors
     var p1IsWhite = Math.random() < 0.5;
     var white = (p1IsWhite)?p1:p2;
     var black = (p1IsWhite)?p2:p1;
 
-    return game.CreateGame(white, black, time, increment);
+    return game.CreateGame(white, black, time, increment, rated);
 }
 
 module.exports = game;

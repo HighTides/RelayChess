@@ -6,8 +6,8 @@
             window.oRequestAnimationFrame      ||
             window.msRequestAnimationFrame     ||
             function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 1000 / 60);
-            };
+        window.setTimeout(callback, 1000 / 60);
+    };
     })();
 
     var app = angular.module("relayApp");
@@ -153,6 +153,26 @@
             }
 
             $rootScope.$apply();
+        }
+
+        function playSound(move){
+            //sounds
+            if(move.flags.indexOf("c") != -1 || move.flags.indexOf("e") != -1)
+            {
+                //capture
+                relayAudio.playSound("capture");
+            }
+            else
+            {
+                //move
+                relayAudio.playSound("move");
+            }
+
+            if (chess.in_check())
+            {
+                //check
+                relayAudio.playSound("check");
+            }
         }
 
         $scope.$on("$destroy", function() {
@@ -371,8 +391,7 @@
                 });
             }
 
-            var check;
-            if(check = chess.in_check())
+            if(chess.in_check())
             {
                 ground.setCheck();
             }
@@ -382,23 +401,7 @@
             //play premove if set
             ground.playPremove();
 
-            //sounds
-            if(response.move.flags.indexOf("c") != -1 || response.move.flags.indexOf("e") != -1)
-            {
-                //capture
-                relayAudio.playSound("capture");
-            }
-            else
-            {
-                //move
-                relayAudio.playSound("move");
-            }
-
-            if (check)
-            {
-                //check
-                relayAudio.playSound("check");
-            }
+            playSound(move);
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {

@@ -4,14 +4,14 @@
     //config our routes
     app.config(function ($routeProvider) {
         $routeProvider.when("/", {
+            templateUrl: "lobby.html",
+            controller: "lobbyController"
+        }).when("/login", {
             templateUrl: "login.html",
             controller: "loginController"
         }).when("/register", {
             templateUrl: "register.html",
             controller: "loginController"
-        }).when("/lobby", {
-            templateUrl: "lobby.html",
-            controller: "lobbyController"
         }).when("/rules", {
             templateUrl: "rules.html",
             controller: "lobbyController"

@@ -20,6 +20,43 @@ module.exports = function(socket){
             return;
         }
 
+        if(request.token == "anonymous"){
+            //anonymous login request
+            
+            //check if this socket is associated with a different user already
+            var ServerUser = utils.getServerUserBySocket(socket);
+
+            if(ServerUser != null)
+            {
+                //WTF
+                //ignore this
+                return;
+            }
+
+            //create temporary anonymous user
+            //for the moment we won't hand out anonymous tokens (so the only credentials anonymous users have is the socket connection, disconnect -> loss of identity)
+            var anonID = utils.generateAnonID();
+
+            //new anonymous user -> insert object
+            data.loggedInUsers[anonID] = {
+                    name: "anonymous",
+                    displayName: "Anonymous",
+                    title: "",
+                    rating: "?"
+                };
+
+            //add socket connection
+            data.loggedInUsers[anonID].sockets = [];
+            data.loggedInUsers[anonID].sockets.push(socket);
+
+            console.log(anonID + " -> new connection");
+
+            //send user update to all connected users
+            utils.emitUserUpdate(io.sockets);
+
+            return;
+        }
+
         co(function*(){
             //check token
             if(userToken.validateUserToken(request.token))

@@ -4,17 +4,6 @@
     app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, relayAudio) {
         $scope.relayChess = relayChess;
 
-        //back to login if we don't have a token
-        if($localStorage.userToken == undefined || $localStorage.userToken == null)
-        {
-            $location.path("login");
-        }
-
-        $scope.userToken = JSON.parse($localStorage.userToken);
-
-        //check token
-        relayChess.socket.emit("login", {token: $scope.userToken});
-
         $scope.navigate = function(to)
         {
             $location.path(to);

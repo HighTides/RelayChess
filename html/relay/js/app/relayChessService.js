@@ -1,5 +1,6 @@
 (function() {
     var socketServer = "http://188.166.194.141:3000/";
+    //socketServer = "127.0.0.1:3000";
 
     var app = angular.module("relayApp");
 
@@ -15,6 +16,21 @@
         var socket = io.connect(socketServer);
 
         data.socket = socket;
+
+        data.login = function(){
+            //login as anonymous if we dont have a token
+            if($localStorage.userToken == undefined || $localStorage.userToken == null)
+            {
+                $rootScope.$apply(function () {
+                    $location.path("login");
+                });
+            }
+
+            $scope.userToken = JSON.parse($localStorage.userToken);
+
+            //check token
+            relayChess.socket.emit("login", {token: $scope.userToken});
+        };
 
         socket.on("logout", function (response) {
             console.log("socket -> logout");

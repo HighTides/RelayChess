@@ -9,6 +9,8 @@ var userToken = require("../userToken");
 
 var utils = require("./utils");
 
+//TODO: unrated games
+
 module.exports = function(socket){
     function abortGame(game){
         console.log("game aborted (" + game.id + ")");
@@ -28,7 +30,7 @@ module.exports = function(socket){
     }
 
     function gameOver(game){
-        //notify both players (and spectators) of the game results, calculate new ratings and store game results in database
+        //notify both players (and spectators) of the game results, calculate new ratings (if rated) and store game results in database
         var result = null;
 
         if(game.chess.game_over())
@@ -100,32 +102,37 @@ module.exports = function(socket){
             }
 
             co(function*(){
-                //update player ratings
-                var playerWhite = yield data.userCollection.findOne({name: game.white.name});
-                var playerBlack = yield data.userCollection.findOne({name: game.black.name});
-                var ratingWhite = playerWhite.rating;
-                var ratingBlack = playerBlack.rating;
-                var newRatings = {
-                    white: glicko2(ratingWhite.r, ratingWhite.rd, ratingWhite.vol, [[ratingBlack.r, ratingBlack.rd, nResult]]),
-                    black: glicko2(ratingBlack.r, ratingBlack.rd, ratingBlack.vol, [[ratingWhite.r, ratingWhite.rd, 1-nResult]])
-                };
-                var adjustedRatings = {
-                    white: {r:newRatings.white.rating, rd:newRatings.white.rd, vol:newRatings.white.vol},
-                    black: {r:newRatings.black.rating, rd:newRatings.black.rd, vol:newRatings.black.vol}
-                };
+                if(game.rated){
+                    //update player ratings
+                    var playerWhite = yield data.userCollection.findOne({name: game.white.name});
+                    var playerBlack = yield data.userCollection.findOne({name: game.black.name});
+                    var ratingWhite = playerWhite.rating;
+                    var ratingBlack = playerBlack.rating;
+                    var newRatings = {
+                        white: glicko2(ratingWhite.r, ratingWhite.rd, ratingWhite.vol, [[ratingBlack.r, ratingBlack.rd, nResult]]),
+                        black: glicko2(ratingBlack.r, ratingBlack.rd, ratingBlack.vol, [[ratingWhite.r, ratingWhite.rd, 1-nResult]])
+                    };
+                    var adjustedRatings = {
+                        white: {r:newRatings.white.rating, rd:newRatings.white.rd, vol:newRatings.white.vol},
+                        black: {r:newRatings.black.rating, rd:newRatings.black.rd, vol:newRatings.black.vol}
+                    };
 
-                //update user db 
-                yield data.userCollection.update({name:playerWhite.name}, {$set:{rating:adjustedRatings.white}});
-                yield data.userCollection.update({name:playerBlack.name}, {$set:{rating:adjustedRatings.black}});
+                    //update user db 
+                    yield data.userCollection.update({name:playerWhite.name}, {$set:{rating:adjustedRatings.white}});
+                    yield data.userCollection.update({name:playerBlack.name}, {$set:{rating:adjustedRatings.black}});
 
-                result.preRatings = { white: ratingWhite, black: ratingBlack };
-                result.ratings = adjustedRatings;
+                    result.preRatings = { white: ratingWhite, black: ratingBlack };
+                    result.ratings = adjustedRatings;
 
-                //update server users
-                if(playerWhite.name in data.loggedInUsers)
-                    data.loggedInUsers[playerWhite.name].rating = adjustedRatings.white;
-                if(playerBlack.name in data.loggedInUsers)
-                    data.loggedInUsers[playerBlack.name].rating = adjustedRatings.black;
+                    //update server users
+                    if(playerWhite.name in data.loggedInUsers)
+                        data.loggedInUsers[playerWhite.name].rating = adjustedRatings.white;
+                    if(playerBlack.name in data.loggedInUsers)
+                        data.loggedInUsers[playerBlack.name].rating = adjustedRatings.black;
+
+                    //send updated player rating to all users
+                    utils.emitUserUpdate(io.sockets);
+                }
 
                 //send results
                 try{
@@ -142,6 +149,7 @@ module.exports = function(socket){
                 //store game
                 var newGame = {
                     id: game.id,
+                    rated: game.rated,
                     time: game.time,
                     increment: game.increment,
 
@@ -167,18 +175,18 @@ module.exports = function(socket){
             return;
         }
 
-        var user = utils.getServerUserBySocket(socket);
-
-        if(!user){
-            //invalid user
-            return;
-        }
-
         //look for game with id and verify that user is playing in the game
         var game = data.activeGames[request.id];
 
         if(!game){
             //invalid id
+            return;
+        }
+
+        var user = utils.getServerUserBySocket(socket);
+
+        if(!user){
+            //invalid user
             return;
         }
 

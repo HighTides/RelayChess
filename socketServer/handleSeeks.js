@@ -10,7 +10,10 @@ var utils = require("./utils");
 
 var game = require("./game");
 
+//TODO: check for min/max rating
+
 module.exports = function(socket){
+    
     //player submitted new seek
     socket.on("seek", function(request){
         console.log("socket -> seek");
@@ -24,18 +27,30 @@ module.exports = function(socket){
             return;
         }
 
+        if(!("rated" in request) || !_.isBoolean(request.rated)){
+            //invalid request
+            return;
+        }
+
         var user = utils.getServerUserBySocket(socket);
         
         if(!user){
             //invalid user
             return;    
         }
+
+        if(user.name.startsWith("anonymous") && request.rated){
+            //anonymous users cannot seek rated games
+            return;
+        }
+
         data.gameSeeks[user.name] = {
             user: user,
             time: request.time, 
             increment: request.inc,
             minRating: 0,
-            maxRating: 9999
+            maxRating: 9999,
+            rated: request.rated
         };
 
         //push updated seeks to all players
@@ -83,6 +98,7 @@ module.exports = function(socket){
         }
 
         if(request.seek in data.gameSeeks){
+
             //check if other player is still online
             if(!(request.seek in data.loggedInUsers))
             {
@@ -94,13 +110,20 @@ module.exports = function(socket){
 
                 return;
             }
+
+            //anonymous users can only join unrated games
+            if(user.name.startsWith("anonymous") && data.gameSeeks[request.seek].rated)
+            {
+                return;
+            }
             
             //create new game
             var newGame = game.CreateGameRandom(
                 request.seek, 
                 user.name, 
                 data.gameSeeks[request.seek].time, 
-                data.gameSeeks[request.seek].increment);
+                data.gameSeeks[request.seek].increment,
+                data.gameSeeks[request.seek].rated);
 
             //invite players to game
             socket

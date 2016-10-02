@@ -116,7 +116,7 @@ app.get("/register", function(req, res){
         //check if username exists
         var userQuery = yield data.userCollection.findOne({"name": username});
 
-        if(userQuery != null)
+        if(userQuery != null || username.startsWith("anonymous"))
         {
             //users with this name found
             res.json({result:false, reason: "username already exist"});

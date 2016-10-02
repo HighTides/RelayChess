@@ -10,6 +10,16 @@ function utils(){ }
 
 utils.getDatabaseUserByName = function(name)
 {
+    if(name.startsWith("anonymous")){
+        //return pseudo user "anonymous"
+        return {
+            name: name,
+            title: "",
+            displayName: "Anonymous",
+            rating: "?"
+        };
+    }
+
     var user = data.userCollection.findOne({name: name}, {name:1, displayName:1, title:1, rating:1});
 
     return user;
@@ -50,6 +60,26 @@ utils.generateGameID = function()
     return id;
 };
 
+utils.generateAnonID = function()
+{
+    function generateUUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        });
+        return uuid;
+    };
+
+    var id;
+
+    //regenerate until we have a unique id
+    while("anonymous-" + (id = generateUUID()) in data.loggedInUsers){}
+
+    return "anonymous-" + id;
+};
+
 utils.emitUserUpdate = function(socket)
 {
     //send online users and current seeks
@@ -83,7 +113,8 @@ utils.emitSeeksUpdate = function(socket)
             displayName: seek_.user.displayName,
             rating: seek_.user.rating,
             time: seek_.time,
-            increment: seek_.increment
+            increment: seek_.increment,
+            rated: seek_.rated
         });
     }
 

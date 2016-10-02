@@ -19,8 +19,12 @@
 
         var fen = undefined;
 
-        var AI = new relayChessAI();
         var chess = new Chess(fen);
+
+        var stockfish = stockfishWorker({
+            minDepth: 10,
+            variant: "relay"
+        }, "stockfishRelay");
 
         var board = angular.element("#relayAIBoard")[0];
         var ground = Chessground(board,
@@ -55,31 +59,7 @@
             $location.path("lobby");
         };
 
-        function onAIMove(move){
-            console.log("AI -> move");
-
-            move = chess.move(move);
-
-            //our turn -> movable pieces
-            ground.set({
-                fen: chess.fen(),
-                lastMove: [move.from, move.to],
-                turnColor: chessToColor(chess),
-                movable: {
-                    color: chessToColor(chess),
-                    dests: chessToDests(chess)
-                }
-            });
-
-            var check;
-            if(check = chess.in_check())
-            {
-                ground.setCheck();
-            }
-
-            //play premove if set
-            ground.playPremove();
-
+        function playSound(move){
             //sounds
             if(move.flags.indexOf("c") != -1 || move.flags.indexOf("e") != -1)
             {
@@ -92,11 +72,54 @@
                 relayAudio.playSound("move");
             }
 
-            if (check)
+            if (chess.in_check())
             {
                 //check
                 relayAudio.playSound("check");
             }
+        }
+
+        function onAIMove(uci){
+            console.log("AI -> move");
+
+            var res = /([a-h1-8]{2})([a-h1-8]{2})([qrbn]{1})?/g.exec(uci.eval.best);
+
+            var from = res[1];
+            var to = res[2];
+            var promotion = res[3]?res[3]:null;
+
+            var move = {
+                from:from,
+                to:to,
+                promotion:promotion
+            };
+
+            move = chess.move(move);
+
+            if(!move){
+                console.log("Illegal move! " + uci.eval.best);
+            }
+
+            //our turn -> movable pieces
+            ground.set({
+                fen: chess.fen(),
+                lastMove: [move.from, move.to],
+                turnColor: chessToColor(chess),
+                movable: {
+                    color: chessToColor(chess),
+                    dests: chessToDests(chess)
+                }
+            });
+
+            if(chess.in_check())
+            {
+                ground.setCheck();
+            }
+
+            //play premove if set
+            ground.playPremove();
+
+            playSound(move);
         }
 
         function SearchAIMove()
@@ -104,8 +127,17 @@
             //search next AI move (web worker?)
             console.log("search AI move");
 
-            var AIMove = AI.searchNextMove(chess, level);
-            onAIMove(AIMove);
+            stockfish.start({
+                initialFen: chess.fen(),
+                moves: chess.history(),
+                ply: (chess.turn()=="w")?0:1,
+                maxDepth: 21,
+                emit: function(res) {
+                    stockfish.stop();
+
+                    onAIMove(res);
+                }
+            });
         }
 
         //promotion ui
@@ -187,6 +219,8 @@
             {
                 ground.setCheck();
             }
+
+            playSound(move);
 
             SearchAIMove();
         };
