@@ -4,13 +4,14 @@
 
     var app = angular.module("relayApp");
 
-    app.controller("loginController", function ($scope, $http, $window, $route, $routeParams, $location, $localStorage) {
+    app.controller("loginController", function ($scope, $http, $window, $route, $routeParams, $location, $localStorage, relayAudio) {
         //skip to lobby
         if($localStorage.userToken != undefined)
         {
             $location.path("lobby");
             return;
         }
+        relayAudio.playSound("theme");
 
         $scope.showLogin = function()
         {

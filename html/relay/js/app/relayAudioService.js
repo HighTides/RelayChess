@@ -6,17 +6,19 @@
         //load sounds
         var sounds = {
             capture: ngAudio.load("sound/standard/Capture.ogg"),
+            castle: ngAudio.load("sound/orchestra/Castle.wav"),
             challenge: ngAudio.load("sound/sfx/NewChallenge.ogg"),
             check: ngAudio.load("sound/robot/Check.ogg"),
-            chime: ngAudio.load("sound/sfx/GenericNotify.ogg"),
             click: ngAudio.load("sound/sfx/Berserk.ogg"),
-            defeat: ngAudio.load("sound/nes/Defeat.ogg"),
-            draw: ngAudio.load("sound/nes/Draw.ogg"),
+            defeat: ngAudio.load("sound/orchestra/Defeat.wav"),
+            draw: ngAudio.load("sound/orchestra/Draw.wav"),
+            lobby: ngAudio.load("sound/orchestra/Lobby.wav"),
             lowtime: ngAudio.load("sound/standard/LowTime.ogg"),
             move: ngAudio.load("sound/standard/Move.ogg"),
+            newgame: ngAudio.load("sound/orchestra/NewGame.wav"),
             notify: ngAudio.load("sound/standard/GenericNotify.ogg"),
-            victory: ngAudio.load("sound/nes/Victory.ogg"),
-            silence: ngAudio.load("sound/Silence.ogg")
+            theme: ngAudio.load("sound/orchestra/Theme.wav"),
+            victory: ngAudio.load("sound/orchestra/Victory.wav")
         };
 
         function audioService(){ }
@@ -28,6 +30,17 @@
                 sounds[sound].volume = audioService.volume;
                 sounds[sound].play();
             }
+        };
+
+        audioService.ensureLobbyIsNotPlaying = function(){
+            sounds["lobby"].stop();
+        };
+
+        audioService.ensureLobbyIsPlaying = function(){
+            audioService.ensureLobbyIsNotPlaying();
+            sounds["lobby"].loop = true;
+            sounds["lobby"].volume = audioService.volume;
+            sounds["lobby"].play();
         };
 
         return audioService;

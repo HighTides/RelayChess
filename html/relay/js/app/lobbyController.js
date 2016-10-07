@@ -3,6 +3,7 @@
 
     app.controller("lobbyController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, ModalService, relayAudio) {
         $scope.relayChess = relayChess;
+        relayAudio.ensureLobbyIsPlaying();
 
         $scope.navigate = function(to)
         {

@@ -66,6 +66,11 @@
                 //capture
                 relayAudio.playSound("capture");
             }
+            else if(move.flags.indexOf("k") != -1 || move.flags.indexOf("q") != -1)
+            {
+                //castle
+                relayAudio.playSound("castle");
+            }
             else
             {
                 //move

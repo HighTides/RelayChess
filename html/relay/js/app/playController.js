@@ -14,6 +14,7 @@
 
     app.controller("playController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, ModalService, relayChess, relayAudio) {
         $scope.relayChess = relayChess;
+        relayAudio.ensureLobbyIsNotPlaying();
 
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
@@ -161,6 +162,11 @@
             {
                 //capture
                 relayAudio.playSound("capture");
+            }
+            else if(move.flags.indexOf("k") != -1 || move.flags.indexOf("q") != -1)
+            {
+                //castle
+                relayAudio.playSound("castle");
             }
             else
             {
@@ -324,7 +330,7 @@
             {
                 //timer not runnning yet
                 showUI("pregame");
-                relayAudio.playSound("chime");
+                relayAudio.playSound("newgame");
             }
 
             //update all the values
