@@ -889,34 +889,36 @@ var Chess = function(fen) {
 
     function buildAttributes()
     {
-        var us = turn;
-        var pieces = material(us, [KNIGHT, BISHOP, ROOK, QUEEN, KING]);
-        for (var n=0; n<pieces.length; n++)
+        for (var color of [WHITE, BLACK])
         {
-            var i = pieces[n];
-            board[i].attributes = undefined;
-
-            //we have a piece
-            var attackers = getPieceAttackers(pieces, i);
-
-            //add own piece type to the move attributes
-            var attributes = attackers | (1 << SHIFTS[board[i].type]);
-
-            //merge attributes
-            if(attributes & (1 << SHIFTS[ROOK]) & (1 << SHIFTS[BISHOP]))
+            var pieces = material(color, [KNIGHT, BISHOP, ROOK, QUEEN, KING]);
+            for (var n=0; n<pieces.length; n++)
             {
-                //merge to queen
-                attributes |= (1 << SHIFTS[QUEEN]);
-            }
+                var i = pieces[n];
+                board[i].attributes = undefined;
 
-            //clean attributes
-            if(attributes & (1 << SHIFTS[QUEEN]))
-            {
-                //remove unnecessary attributes
-                attributes &= ~((1 << SHIFTS[KING]) | (1 << SHIFTS[BISHOP]) | (1 << SHIFTS[ROOK]));
-            }
+                //we have a piece
+                var attackers = getPieceAttackers(pieces, i);
 
-            board[i].attributes = attributes;
+                //add own piece type to the move attributes
+                var attributes = attackers | (1 << SHIFTS[board[i].type]);
+
+                //merge attributes
+                if(attributes & (1 << SHIFTS[ROOK]) & (1 << SHIFTS[BISHOP]))
+                {
+                    //merge to queen
+                    attributes |= (1 << SHIFTS[QUEEN]);
+                }
+
+                //clean attributes
+                if(attributes & (1 << SHIFTS[QUEEN]))
+                {
+                    //remove unnecessary attributes
+                    attributes &= ~((1 << SHIFTS[KING]) | (1 << SHIFTS[BISHOP]) | (1 << SHIFTS[ROOK]));
+                }
+
+                board[i].attributes = attributes;
+            }
         }
     }
 
