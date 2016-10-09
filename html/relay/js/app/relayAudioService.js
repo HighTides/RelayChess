@@ -33,14 +33,15 @@
         };
 
         audioService.ensureLobbyIsNotPlaying = function(){
-            sounds["lobby"].stop();
+            sounds["lobby"].loop = false;
         };
 
         audioService.ensureLobbyIsPlaying = function(){
-            audioService.ensureLobbyIsNotPlaying();
-            sounds["lobby"].loop = true;
-            sounds["lobby"].volume = audioService.volume;
-            sounds["lobby"].play();
+            if (! sounds["lobby"].loop) {
+                sounds["lobby"].loop = true;
+                sounds["lobby"].volume = audioService.volume;
+                sounds["lobby"].play();
+            }
         };
 
         return audioService;

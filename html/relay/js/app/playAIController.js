@@ -13,6 +13,7 @@
     var app = angular.module("relayApp");
 
     app.controller("playAIController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, ModalService, relayAudio) {
+        relayAudio.ensureLobbyIsNotPlaying();
 
         var level = $routeParams.level;
         var playOrientation = $routeParams.orientation=="w"?"white":"black";
