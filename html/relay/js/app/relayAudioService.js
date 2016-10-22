@@ -12,7 +12,7 @@
             click: ngAudio.load("sound/sfx/Berserk.ogg"),
             defeat: ngAudio.load("sound/orchestra/Defeat.wav"),
             draw: ngAudio.load("sound/orchestra/Draw.wav"),
-            lobby: ngAudio.load("sound/orchestra/Lobby.wav"),
+            lobby: ngAudio.load("sound/orchestra/Lobby.mp3"),
             lowtime: ngAudio.load("sound/standard/LowTime.ogg"),
             move: ngAudio.load("sound/standard/Move.ogg"),
             newgame: ngAudio.load("sound/orchestra/NewGame.wav"),
