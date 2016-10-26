@@ -5,6 +5,17 @@
         $scope.relayChess = relayChess;
         relayAudio.ensureLobbyIsPlaying();
 
+        //back to login if we don't have a token
+        if($localStorage.userToken == undefined || $localStorage.userToken == null)
+        {
+            $location.path("login");
+        }
+
+        $scope.userToken = JSON.parse($localStorage.userToken);
+
+        //check token
+        relayChess.socket.emit("login", {token: $scope.userToken});
+
         $scope.navigate = function(to)
         {
             $location.path(to);
@@ -48,7 +59,7 @@
                     if(result)
                     {
                         console.log("new game " + result.time);
-                        relayChess.socket.emit("seek", {time: result.time, inc: result.inc});
+                        relayChess.socket.emit("seek", {time: result.time, inc: result.inc, rated: true});
 
                         //send out seek request
                         //and wait for joinGame message

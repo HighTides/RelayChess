@@ -16,6 +16,7 @@
         $scope.relayChess = relayChess;
         relayAudio.ensureLobbyIsNotPlaying();
 
+        //TODO: allow anonymous users (login token:anonymous)
         //back to login if we don't have a token
         if($localStorage.userToken == undefined || $localStorage.userToken == null)
         {
@@ -248,6 +249,10 @@
             //update game information
             console.log("socket -> setupGame");
 
+            //sanity check
+            if(response.id != gameID)
+                return;
+
             if(orientation == "white"){
                 $scope.us = response.white;
                 $scope.them =  response.black;
@@ -341,6 +346,10 @@
         var cleanStartGame = $rootScope.$on("startGame", function (event, response) {
             console.log("socket -> startGame");
 
+            //sanity check
+            if(response.id != gameID)
+                return;
+
             //start the clocks
             gameRunning = true;
             startUpdateTimer();
@@ -350,6 +359,10 @@
 
         var cleanTimeUpdate = $rootScope.$on("timeUpdate", function (event, response) {
             console.log("socket -> timeUpdate");
+
+            //sanity check
+            if(response.id != gameID)
+                return;
 
             if(orientation == "white") {
                 $scope.us.time = response.white;
@@ -369,9 +382,8 @@
             console.log("socket -> move");
 
             //sanity check
-            if(response.id != gameID){
+            if(response.id != gameID)
                 return;
-            }
 
             chess.load(response.fen);
 
@@ -411,6 +423,10 @@
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {
+            //sanity check
+            if(response.id != gameID)
+                return;
+
             if(response.result == "abort") {
                 $scope.gameResult = "";
                 $scope.gameResultReason = "Game Aborted";

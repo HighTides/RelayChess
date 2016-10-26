@@ -28,7 +28,6 @@ module.exports = function(socket){
 
             if(ServerUser != null)
             {
-                //WTF
                 //ignore this
                 return;
             }

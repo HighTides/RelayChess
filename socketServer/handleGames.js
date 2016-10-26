@@ -15,12 +15,14 @@ module.exports = function(socket){
     function abortGame(game){
         console.log("game aborted (" + game.id + ")");
         
+        var result = {id: game.id, result: "abort"};
+
         //notify players
-        game.white.socket.emit("gameOver", {result: "abort"});
-        game.black.socket.emit("gameOver", {result: "abort"});
+        game.white.socket.emit("gameOver", result);
+        game.black.socket.emit("gameOver", result);
 
         //notify spectators
-        utils.emitSpectators(game, "gameOver", {result: "abort"});
+        utils.emitSpectators(game, "gameOver", result);
 
         //remove game
         delete data.activeGames[game.id];
@@ -80,6 +82,8 @@ module.exports = function(socket){
             //game ended
             console.log("game ended (" + game.id + ")");
 
+            result.id = game.id;
+
             //remove game
             clearTimeout(game.currentTimeout);
             delete data.activeGames[game.id];
@@ -106,8 +110,10 @@ module.exports = function(socket){
                     //update player ratings
                     var playerWhite = yield data.userCollection.findOne({name: game.white.name});
                     var playerBlack = yield data.userCollection.findOne({name: game.black.name});
+
                     var ratingWhite = playerWhite.rating;
                     var ratingBlack = playerBlack.rating;
+
                     var newRatings = {
                         white: glicko2(ratingWhite.r, ratingWhite.rd, ratingWhite.vol, [[ratingBlack.r, ratingBlack.rd, nResult]]),
                         black: glicko2(ratingBlack.r, ratingBlack.rd, ratingBlack.vol, [[ratingWhite.r, ratingWhite.rd, 1-nResult]])
@@ -127,6 +133,7 @@ module.exports = function(socket){
                     //update server users
                     if(playerWhite.name in data.loggedInUsers)
                         data.loggedInUsers[playerWhite.name].rating = adjustedRatings.white;
+
                     if(playerBlack.name in data.loggedInUsers)
                         data.loggedInUsers[playerBlack.name].rating = adjustedRatings.black;
 
@@ -207,6 +214,7 @@ module.exports = function(socket){
                 game.spectators[user.name] = socket;
 
                 socket.emit("setupGame", {
+                    id: game.id,
                     spectate: true,
                     orientation: "w", //spectators see white by default
                     history: game.chess.history(),
@@ -232,6 +240,7 @@ module.exports = function(socket){
             console.log("socket -> setupGame");
 
             socket.emit("setupGame", {
+                id: game.id,
                 orientation: color,
                 history: game.chess.history(),
                 timing: game.timing,
@@ -363,10 +372,12 @@ module.exports = function(socket){
             game.timing = true;
 
             //start the clocks
-            game.white.socket.emit("startGame");
-            game.black.socket.emit("startGame");
+            var startGameResponse = {id: game.id};
 
-            utils.emitSpectators(game, "startGame", null);
+            game.white.socket.emit("startGame", startGameResponse);
+            game.black.socket.emit("startGame", startGameResponse);
+
+            utils.emitSpectators(game, "startGame", startGameResponse);
         }
 
         if(game.timing){
@@ -410,7 +421,7 @@ module.exports = function(socket){
             console.log("time -> " + game.chess.turn() + " ( " + timeout + " )");
 
             //send time updates to players and spectators
-            var times = {white: game.white.time, black: game.black.time};
+            var times = {id: game.id, white: game.white.time, black: game.black.time};
             game.white.socket.emit("timeUpdate", times);
             game.black.socket.emit("timeUpdate", times);
             utils.emitSpectators(game, "timeUpdate", times);
