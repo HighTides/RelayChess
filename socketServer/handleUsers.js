@@ -45,8 +45,7 @@ module.exports = function(socket){
                 };
 
             //add socket connection
-            data.loggedInUsers[anonID].sockets = [];
-            data.loggedInUsers[anonID].sockets.push(socket);
+            data.loggedInUsers[anonID].sockets = [socket];
 
             console.log(anonID + " -> new connection");
 

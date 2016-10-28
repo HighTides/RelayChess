@@ -419,7 +419,7 @@
             //play premove if set
             ground.playPremove();
 
-            relayAudio.playSound("move");
+            playSound(response.move);
         });
 
         var cleanGameOver = $rootScope.$on("gameOver", function (event, response) {
