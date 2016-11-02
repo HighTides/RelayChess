@@ -4,14 +4,18 @@
 
     var app = angular.module("relayApp");
 
-    app.controller("loginController", function ($scope, $http, $window, $route, $routeParams, $location, $localStorage, relayAudio) {
+    app.controller("loginController", function ($scope, $http, $window, $route, $routeParams, $location, $localStorage, relayChess, relayAudio) {
         //skip to lobby
         if($localStorage.userToken != undefined)
         {
             $location.path("lobby");
             return;
         }
-        relayAudio.playSound("theme");
+
+        $scope.navigate = function(to)
+        {
+            $location.path(to);
+        };
 
         $scope.showLogin = function()
         {
@@ -96,6 +100,12 @@
                     //store token
                     $localStorage.userToken = response.token;
 
+                    //update player info
+                    var userToken = JSON.parse(response.token);
+                    relayChess.playerInfo.username = userToken.name;
+                    relayChess.playerInfo.displayName = userToken.displayName;
+                    relayChess.anonymousUser = false;
+
                     $location.path("lobby");
                 }
             }).error(function(error, status){
@@ -134,6 +144,12 @@
 
                     //store token
                     $localStorage.userToken = response.token;
+
+                    //update player info
+                    var userToken = JSON.parse(response.token);
+                    relayChess.playerInfo.username = userToken.name;
+                    relayChess.playerInfo.displayName = userToken.displayName;
+                    relayChess.anonymousUser = false;
 
                     $location.path("lobby");
                 }

@@ -6,8 +6,13 @@
 
     app.factory("relayChess", function ($rootScope, $location, $localStorage) {
         var data = {
+            loggedIn: false,
+            anonymousUser: true,
             socket: null,
-            playerInfo: null,
+            playerInfo: {
+                username: "Anonymous",
+                displayName: "Anonymous"
+            },
             users: [],
             seeks: [],
             activeGames: []
@@ -17,85 +22,140 @@
 
         data.socket = socket;
 
+        //update user info
+        if($localStorage.userToken != undefined && $localStorage.userToken != null)
+        {
+            var userToken = JSON.parse($localStorage.userToken);
+
+            data.playerInfo.username = userToken.name;
+            data.playerInfo.displayName = userToken.displayName;
+
+            data.anonymousUser = false;
+        }
+
         data.login = function(){
+            if(data.loggedIn)
+            {
+                return;
+            }
+
             //login as anonymous if we dont have a token
             if($localStorage.userToken == undefined || $localStorage.userToken == null)
             {
-                $rootScope.$apply(function () {
-                    $location.path("login");
-                });
+                //try login as new anonymous user
+                data.socket.emit("login", {token: "anonymous"});
+                data.anonymousUser = true;
+
+                return;
             }
 
-            $scope.userToken = JSON.parse($localStorage.userToken);
+            var userToken = JSON.parse($localStorage.userToken);
 
             //check token
-            relayChess.socket.emit("login", {token: $scope.userToken});
+            data.socket.emit("login", {token: userToken});
+
+            //TODO: validate this on server response
+            data.loggedIn = true;
+            data.anonymousUser = false;
         };
 
-        socket.on("logout", function (response) {
+        data.logout = function(){
+            data.socket.disconnect();
+
+            data.playerInfo.username = "Anonymous";
+            data.playerInfo.displayName = "Anonymous";
+            data.anonymousUser = true;
+        };
+
+        socket.on("logout", function(response){
             console.log("socket -> logout");
+
+            data.loggedIn = false;
 
             //server doesn't like our token
             $localStorage.userToken = undefined;
 
-            $rootScope.$apply(function () {
+            data.logout();
+
+            $rootScope.$apply(function(){
                 //back to login
                 $location.path("login");
             });
         });
 
-        socket.on("userUpdate", function (response) {
+        socket.on("userUpdate", function(response){
             //store online users
             console.log("socket -> userUpdate");
 
-            $rootScope.$apply(function () {
+            $rootScope.$apply(function(){
                 data.users = response.users;
             });
         });
 
-        socket.on("seekUpdate", function (response) {
+        socket.on("anonToken", function(response){
+            console.log("socket -> anonToken");
+
+            $rootScope.$apply(function(){
+                //store anonymous credentials
+                data.playerInfo.username = response.name;
+                data.playerInfo.displayName = response.displayName;
+                data.anonymousUser = true;
+            });
+        });
+
+        socket.on("seekUpdate", function(response){
             //store seeks
             console.log("socket -> seekUpdate");
 
-            $rootScope.$apply(function () {
+            $rootScope.$apply(function(){
+                if(data.anonymousUser){
+                    //remove rated games for anonymous users
+                    for (var i = 0; i < response.seeks.length; i++) {
+                        if(response.seeks[i].rated){
+                            response.seeks.splice(i,1)
+                            i--;
+                        }
+                    }
+                }
+
                 data.seeks = response.seeks;
             });
         });
 
-        socket.on("activeGameUpdate", function (response) {
+        socket.on("activeGameUpdate", function(response){
             //store active games
             console.log("socket -> activeGameUpdate");
 
-            $rootScope.$apply(function () {
+            $rootScope.$apply(function(){
                 data.activeGames = response.activeGames;
             });
         });
 
         //chessgame endpoints
-        socket.on("joinGame", function (response) {
+        socket.on("joinGame", function(response){
             //move player to game after seek has been accepted etc.
-            $rootScope.$apply(function () {
+            $rootScope.$apply(function(){
                 $location.path("play/" + response.id + "/" + response.orientation);
             });
         });
 
-        socket.on("setupGame", function (response) {
+        socket.on("setupGame", function(response){
             $rootScope.$emit("setupGame", response);
         });
 
-        socket.on("startGame", function (response) {
+        socket.on("startGame", function(response){
             $rootScope.$emit("startGame", response);
         });
 
-        socket.on("move", function (response) {
+        socket.on("move", function(response){
             $rootScope.$emit("move", response);
         });
 
-        socket.on("gameOver", function (response) {
+        socket.on("gameOver", function(response){
             $rootScope.$emit("gameOver", response);
         });
 
-        socket.on("timeUpdate", function (response) {
+        socket.on("timeUpdate", function(response){
             $rootScope.$emit("timeUpdate", response);
         });
 

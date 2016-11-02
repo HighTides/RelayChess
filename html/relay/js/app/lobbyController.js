@@ -5,31 +5,29 @@
         $scope.relayChess = relayChess;
         relayAudio.ensureLobbyIsPlaying();
 
-        //back to login if we don't have a token
-        if($localStorage.userToken == undefined || $localStorage.userToken == null)
+        //login as anonymous or with user token
+        relayChess.login();
+
+        $scope.orderUsersComparator = function(a,b)
         {
-            $location.path("login");
-        }
+            if(a == "?")
+                return -1;
 
-        $scope.userToken = JSON.parse($localStorage.userToken);
+            if(b == "?")
+                return 1;
 
-        //check token
-        relayChess.socket.emit("login", {token: $scope.userToken});
+            return (a.r > b.r) ? 1 : -1;
+        };
 
         $scope.navigate = function(to)
         {
             $location.path(to);
         };
 
-        $scope.logout = function()
-        {
-            $localStorage.userToken = null;
-            $location.path("login");
-        };
-
         $scope.answerSeek = function(seek)
         {
-            if(seek == $scope.userToken.name){
+            debugger;
+            if(seek == relayChess.playerInfo.username){
                 //cancel seek
                 relayChess.socket.emit("cancelSeek");
                 return;
@@ -41,7 +39,7 @@
         $scope.spectateGame = function(game)
         {
             //determine orientation
-            var orientation = ($scope.userToken.name == game.black.name)?"b":"w";
+            var orientation = (relayChess.playerInfo.username == game.black.name)?"b":"w";
 
             //spectate Game
             $location.path("play/" + game.id + "/" + orientation);
@@ -59,7 +57,9 @@
                     if(result)
                     {
                         console.log("new game " + result.time);
-                        relayChess.socket.emit("seek", {time: result.time, inc: result.inc, rated: true});
+
+                        var rated = !relayChess.anonymousUser;
+                        relayChess.socket.emit("seek", {time: result.time, inc: result.inc, rated: rated});
 
                         //send out seek request
                         //and wait for joinGame message

@@ -160,16 +160,16 @@ module.exports = function(socket){
                     time: game.time,
                     increment: game.increment,
 
-                    white: playerWhite.name,
-                    black: playerBlack.name,
+                    white: game.white.name,
+                    black: game.black.name,
                     result: result,
                     
                     pgn: game.chess.pgn(),
                     finalPosition: game.chess.fen()
                 };
 
-                yield data.gameCollection.insertOne(newGame);         
-            });           
+                yield data.gameCollection.insertOne(newGame);
+            });
         }
     }
 

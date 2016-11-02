@@ -5,7 +5,7 @@
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
         <title>Relay Chess</title>
 
-        <!--<script src="https://use.fontawesome.com/34e85c6daf.js"></script>-->
+        <script src="https://use.fontawesome.com/34e85c6daf.js"></script>
 
         <link rel="stylesheet" href="assets/base.css">
         <link rel="stylesheet" href="assets/theme.css">
@@ -23,8 +23,8 @@
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-route.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
         <script src="js/angularModalService.js"></script>
         <script src="js/angular.audio.js"></script>
@@ -56,11 +56,28 @@
         <div class="torch left"></div>
         <div class="torch right"></div>
 
-        <div id="logo" class="center"></div>
+        <div style="width: 960px;" class="center">
+            <div id="logo" style="display:inline-block" class="center"></div>
+            <div class="headMenu" ng-cloak ng-controller="headMenuController">
+                <div class="headMenuItem" ng-click="toggleMusic()" ng-class="relayAudio.musicMuted?'disabled':'enabled'"><i class="fa fa-music" aria-hidden="true"></i></div>
+                <div class="headMenuItem" ng-click="toggleSound()" ng-class="relayAudio.soundMuted?'disabled':'enabled'"><i class="fa fa-volume-up" aria-hidden="true"></i></div>
+                <div class="headMenuUsername" ng-hide="!relayChess.anonymousUser" ng-click="login()">Login</div>
+                <div class="headMenuUsername register" ng-hide="!relayChess.anonymousUser" ng-click="register()">Register</div>
+                <div class="headMenuUsername" ng-hide="relayChess.anonymousUser" ng-click="showProfile()">{{relayChess.playerInfo.displayName}}</div>
+                <div class="headMenuItem enabled" ng-hide="relayChess.anonymousUser" ng-click="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i></div>
+            </div>
+        </div>
 
         <!-- Login -->
         <script type="text/ng-template" id="login.html">
         <div class="flex-center-column center" style="position: relative;">
+            <div style="margin-top:10px; display:flex; justify-content: center;">
+                <a class="btn-menu" ng-click="navigate('lobby')">Lobby</a>
+                <a class="btn-menu" ng-click="navigate('community')">Community</a>
+                <a class="btn-menu" ng-click="navigate('rules')">Rules</a>
+                <a class="btn-menu" href="https://discord.gg/WnEnXZ9" target="_blank">Discord</a>
+            </div>
+
             <div class="flex-block animated fadeIn" style="width: 390px; margin-bottom: 100px;">
                 <p class="login-header">Login</p>
                 <p class="login-header sub-error">{{message}}</p>
@@ -76,6 +93,13 @@
 
         <!-- Register -->
         <script type="text/ng-template" id="register.html">
+            <div style="margin-top:10px; display:flex; justify-content: center;">
+                <a class="btn-menu" ng-click="navigate('lobby')">Lobby</a>
+                <a class="btn-menu" ng-click="navigate('community')">Community</a>
+                <a class="btn-menu" ng-click="navigate('rules')">Rules</a>
+                <a class="btn-menu" href="https://discord.gg/WnEnXZ9" target="_blank">Discord</a>
+            </div>
+
             <div class="flex-center-column center" style="position: relative;">
                 <div class="flex-block animated fadeIn" style="width: 390px; margin-bottom: 100px;">
                     <p class="login-header">Register</p>
@@ -103,10 +127,10 @@
                 <div style="width:250px; margin-right:10px; flex:0 0 auto;">
                     <div class="panel" style="height: 400px; overflow: auto; overflow-x: hidden;">
                         <div style="margin-top: 10px;">{{relayChess.users.length}} Player{{relayChess.users.length!=1?"s":""}} online</div>
-                        <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy: 'rating.r' : true)">
+                        <div style="display:flex; margin-left:10px; margin-right:10px;" ng-repeat="user in (relayChess.users | orderBy:'rating':false:orderUsersComparator )">
                             <div style="color: #d5ac34; flex:0 0 auto; margin-right: 5px;">{{user.title}}</div>
                             <div style="flex:0 0 auto;">{{user.displayName}}</div>
-                            <div style="flex:1 0 auto; text-align: right;">{{user.rating | asGlicko2}}</div>
+                            <div style="flex:1 0 auto; text-align: right;" ng-hide="user.rating=='?'">{{user.rating | asGlicko2}}</div>
                         </div>
                     </div>
                 </div>
@@ -114,31 +138,33 @@
                 <div style="width:500px; flex:0 0 auto;">
                     <div class="panel" style="min-height: 400px;">
                         <div style="margin-top: 10px;">{{relayChess.seeks.length}} Seek{{relayChess.seeks.length!=1?"s":""}}</div>
-                        <div class="seek-base" ng-repeat="seek in relayChess.seeks" ng-class-odd="'odd'" ng-click="answerSeek(seek.name)" ng-class="{'self':(seek.name == userToken.name)}">
+                        <div class="seek-base" ng-repeat="seek in relayChess.seeks" ng-class-odd="'odd'" ng-click="answerSeek(seek.name)" ng-class="{'self':(seek.name == relayChess.playerInfo.username)}">
                             <div style="display:flex; margin-left: 10px; margin-right: 10px;">
                                 <div style="flex:0 0 auto; width: 30%; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{seek.title}}</div>
                                     <div style="display:inline-block;">{{seek.displayName}}</div>
                                 </div>
-                                <div style="flex:1 0 auto; width: 30%;">{{seek.rating | asGlicko2}}</div>
+                                <div style="flex:1 0 auto; width: 30%;" ng-hide="seek.rating=='?'">{{seek.rating | asGlicko2}}</div>
                                 <div style="flex:1 0 auto; width: 40%;">{{seek.time}}+{{seek.increment}}</div>
                             </div>
                         </div>
                     </div>
                     <div class="panel" style="min-height: 40px; margin-top: 10px;">
                         <div style="margin-top: 10px;">{{relayChess.activeGames.length}} Game{{(relayChess.activeGames.length!=1?"s":"") + " in play"}}</div>
-                        <div class="game-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-click="spectateGame(game)" ng-class="{'self':(game.white.name == userToken.name || game.black.name == userToken.name)}">
+                        <div class="game-base" ng-repeat="game in relayChess.activeGames" ng-class-odd="'odd'" ng-click="spectateGame(game)" ng-class="{'self':(game.white.name == relayChess.playerInfo.username || game.black.name == relayChess.playerInfo.username)}">
                             <div style="display:flex; align-items: center; margin-left: 10px; margin-right: 20px; height: 50px;">
                                 <div style="flex:0 0 auto; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{game.white.title}}</div>
-                                    <div style="display:inline-block;">{{game.white.displayName}} ({{game.white.rating | asGlicko2}})</div>
+                                    <div style="display:inline-block;">{{game.white.displayName}}</div>
+                                    <div style="display:inline-block;" ng-hide="game.white.rating=='?'"> ({{game.white.rating | asGlicko2}})</div>
                                 </div>
 
                                 <p style="flex:0 0 auto; margin:0 10px 0 10px;">vs</p>
 
                                 <div style="flex:0 0 auto; text-align: left;">
                                     <div style="display:inline-block; color: #d5ac34;">{{game.black.title}}</div>
-                                    <div style="display:inline-block;">{{game.black.displayName}} ({{game.black.rating | asGlicko2}})</div>
+                                    <div style="display:inline-block;">{{game.black.displayName}}</div>
+                                    <div style="display:inline-block;" ng-hide="game.black.rating=='?'"> ({{game.black.rating | asGlicko2}})</div>
                                 </div>
 
                                 <div style="flex:1 0 auto; text-align: right;">{{game.time}}+{{game.increment}}</div>
@@ -151,7 +177,6 @@
                     <div class="btn-border btn-big yellow" style="margin-bottom: 10px;" ng-click="openSeekDialog();">New Game</div>
                     <div class="btn-border btn-big yellow" style="margin-bottom: 10px; display: none;" ng-click="openSeekAIDialog();">Play Computer</div>
                     <div class="btn-border btn-big" style="margin-bottom: 10px; display: none;" ng-click="openFriendSeekDialog();">Play with a friend</div>
-                    <div class="btn-forgot" style="margin-bottom: 10px; " ng-click="logout()">Logout</div>
                 </div>
             </div>
         </script>

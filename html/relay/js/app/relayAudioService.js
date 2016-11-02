@@ -25,7 +25,13 @@
 
         audioService.volume = 0.5;
 
+        audioService.soundMuted = $localStorage.soundMuted;
+        audioService.musicMuted = $localStorage.musicMuted;
+
         audioService.playSound = function(sound){
+            if(audioService.soundMuted)
+                return;
+
             if(sound in sounds){
                 sounds[sound].volume = audioService.volume;
                 sounds[sound].play();
@@ -40,8 +46,31 @@
             if (! sounds["lobby"].loop) {
                 sounds["lobby"].loop = true;
                 sounds["lobby"].volume = audioService.volume;
+
+                if(audioService.musicMuted){
+                    sounds["lobby"].volume = 0;
+                }
+
                 sounds["lobby"].play();
             }
+        };
+
+        audioService.muteMusic = function(muted){
+            audioService.musicMuted = muted;
+            $localStorage.musicMuted = muted;
+
+            if(audioService.musicMuted){
+                sounds["lobby"].volume = 0;
+            }
+            else
+            {
+                sounds["lobby"].volume = audioService.volume;
+            }
+        };
+
+        audioService.muteSound = function(muted){
+            audioService.soundMuted = muted;
+            $localStorage.soundMuted = muted;
         };
 
         return audioService;

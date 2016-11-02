@@ -33,25 +33,39 @@ module.exports = function(socket){
             }
 
             //create temporary anonymous user
-            //for the moment we won't hand out anonymous tokens (so the only credentials anonymous users have is the socket connection, disconnect -> loss of identity)
+            //for the moment we won't hand out signed anonymous tokens (so the only credentials anonymous users have is the socket connection, disconnect -> loss of identity)
             var anonID = utils.generateAnonID();
+
+            var anonToken = {
+                name: anonID,
+                displayName: "Anonymous"
+            };
 
             //new anonymous user -> insert object
             data.loggedInUsers[anonID] = {
-                    name: "anonymous",
+                    name: anonID,
                     displayName: "Anonymous",
                     title: "",
                     rating: "?"
                 };
 
             //add socket connection
-            data.loggedInUsers[anonID].sockets = [socket];
+            data.loggedInUsers[anonID].sockets = [];
+            data.loggedInUsers[anonID].sockets.push(socket);
 
             console.log(anonID + " -> new connection");
 
             //send user update to all connected users
             utils.emitUserUpdate(io.sockets);
 
+            //send temp token to anonymous user
+            socket.emit("anonToken", anonToken);
+
+            //send seek list to new connection
+            utils.emitSeeksUpdate(socket);
+
+            //send active game list to new connection
+            utils.emitActiveGames(socket);
             return;
         }
 
@@ -151,7 +165,16 @@ module.exports = function(socket){
             if(user.sockets.length == 0){
                 console.log(user.name + " -> disconnected");
 
-                //removed last connection to user -> remove from online array
+                //removed last connection to user
+                //remove all seeks from user
+                if(user.name in data.gameSeeks){
+                    delete data.gameSeeks[user.name];
+
+                    //push updated seeks to all players
+                    utils.emitSeeksUpdate(io.sockets);
+                }
+
+                //remove from online array
                 delete data.loggedInUsers[user.name];
 
                 //send user update to all connected users

@@ -16,17 +16,8 @@
         $scope.relayChess = relayChess;
         relayAudio.ensureLobbyIsNotPlaying();
 
-        //TODO: allow anonymous users (login token:anonymous)
-        //back to login if we don't have a token
-        if($localStorage.userToken == undefined || $localStorage.userToken == null)
-        {
-            $location.path("login");
-        }
-
-        $scope.userToken = JSON.parse($localStorage.userToken);
-
-        //check token
-        relayChess.socket.emit("login", {token: $scope.userToken});
+        //login as anonymous or with user token
+        relayChess.login();
 
         var spectating = false;
 
@@ -463,7 +454,7 @@
                 }
             }
 
-            if(response.result != "abort"){
+            if(response.result != "abort" && 'ratings' in response){
                 //display rating change
                 var whiteChange = Math.round(response.ratings.white.r - response.preRatings.white.r);
                 var blackChange = Math.round(response.ratings.black.r - response.preRatings.black.r);
