@@ -4,7 +4,7 @@
 
     var app = angular.module("relayApp");
 
-    app.factory("relayChess", function ($rootScope, $location, $localStorage) {
+    app.factory("relayChess", function ($rootScope, $window, $timeout, $location, $localStorage) {
         var data = {
             loggedIn: false,
             anonymousUser: true,
@@ -17,6 +17,8 @@
             seeks: [],
             activeGames: []
         };
+
+        console.log($localStorage.userToken)
 
         var socket = io.connect(socketServer);
 
@@ -39,7 +41,7 @@
                 return;
             }
 
-            //login as anonymous if we dont have a token
+            //login as anonymous if we don't have a token
             if($localStorage.userToken == undefined || $localStorage.userToken == null)
             {
                 //try login as new anonymous user
@@ -59,27 +61,16 @@
             data.anonymousUser = false;
         };
 
-        data.logout = function(){
-            data.socket.disconnect();
-
-            data.playerInfo.username = "Anonymous";
-            data.playerInfo.displayName = "Anonymous";
-            data.anonymousUser = true;
-        };
-
         socket.on("logout", function(response){
             console.log("socket -> logout");
 
-            data.loggedIn = false;
+            $rootScope.$apply(function() {
+                delete $localStorage.userToken;
 
-            //server doesn't like our token
-            $localStorage.userToken = undefined;
-
-            data.logout();
-
-            $rootScope.$apply(function(){
-                //back to login
-                $location.path("login");
+                //wait for digest cycle
+                $timeout(function () {
+                    $window.location.reload();
+                },500);
             });
         });
 
@@ -107,17 +98,17 @@
             //store seeks
             console.log("socket -> seekUpdate");
 
-            $rootScope.$apply(function(){
-                if(data.anonymousUser){
-                    //remove rated games for anonymous users
-                    for (var i = 0; i < response.seeks.length; i++) {
-                        if(response.seeks[i].rated){
-                            response.seeks.splice(i,1)
-                            i--;
-                        }
+            if(data.anonymousUser){
+                //remove rated games for anonymous users
+                for (var i = 0; i < response.seeks.length; i++) {
+                    if(response.seeks[i].rated){
+                        response.seeks.splice(i,1)
+                        i--;
                     }
                 }
+            }
 
+            $rootScope.$apply(function(){
                 data.seeks = response.seeks;
             });
         });

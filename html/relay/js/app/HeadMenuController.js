@@ -1,7 +1,7 @@
 (function() {
     var app = angular.module("relayApp");
 
-    app.controller("headMenuController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, ModalService, relayChess, relayAudio) {
+    app.controller("headMenuController", function ($rootScope, $scope, $http, $window, $route, $routeParams, $location, $localStorage, $timeout, ModalService, relayChess, relayAudio) {
         $scope.relayChess = relayChess;
         $scope.relayAudio = relayAudio;
         $scope.location = $location;
@@ -28,12 +28,13 @@
         };
 
         $scope.logout = function(){
-            $localStorage.userToken = null;
+            delete $localStorage.userToken;
 
-            //close socket connection
-            relayChess.logout();
-
-            $location.path("login");
+            //wait for digest cycle
+            $timeout(function(){
+                //force page reload
+                $window.location.reload();
+            },500);
         };
 
         $scope.toggleMusic = function(){
